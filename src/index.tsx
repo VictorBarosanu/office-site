@@ -94,6 +94,15 @@ app.get("/files", async (c) => {
 });
 app.get("/home", (c) => c.redirect("/"));
 
+app.get("/about", (c) =>
+  c.html(
+    <Layout title="About">
+      <h1>About</h1>
+      <p>The office site plans building surveys, assigns them and reads what the field app sends back.</p>
+    </Layout>,
+  ),
+);
+
 app.notFound((c) =>
   c.html(
     <Layout title="Not found">
