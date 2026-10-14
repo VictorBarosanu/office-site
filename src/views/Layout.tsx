@@ -13,9 +13,11 @@ export function Layout({ title, children }: LayoutProps) {
           <meta charset="utf-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <title>{title} · Office site</title>
+          <link rel="stylesheet" href="/style.css" />
         </head>
         <body>
           <nav>
+            <img src="/logo.svg" alt="" width="24" height="24" />
             <a href="/">Home</a> · <a href="/team">Team</a>
           </nav>
           <main>{children}</main>
