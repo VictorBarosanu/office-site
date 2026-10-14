@@ -6,6 +6,10 @@
   "devDependencies": {
     "@types/bun": "latest"
   },
+    "scripts": {
+    "typecheck": "bun check",
+    "dev": "bun --watch src/index.tsx"
+  },
   "peerDependencies": {
     "typescript": "^7"
   },
