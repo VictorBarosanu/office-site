@@ -4,6 +4,8 @@ import { logger } from "hono/logger";
 
 import { stringPages } from "./string-pages";
 
+import { team } from "./data";
+import { Layout } from "./views/Layout";
 
 import { etaPages } from "./eta-pages";
 
@@ -16,9 +18,27 @@ app.use(logger());
 app.route("/eta", etaPages);
 app.route("/strings", stringPages);
 app.get("/", (c) => {
-  c.header("X-Course", "advanced-web");
-  return c.text("Hello from Hono!\n");
+  const name = c.req.query("name") ?? "stranger";
+  return c.html(
+    <Layout title="Home">
+      <h1>Hello, {name}!</h1>
+      <p>The office side of the building survey.</p>
+    </Layout>,
+  );
 });
+
+app.get("/team", (c) =>
+  c.html(
+    <Layout title="Team">
+      <h1>Team</h1>
+      <ul>
+        {team.map((member) => (
+          <li>{member}</li>
+        ))}
+      </ul>
+    </Layout>,
+  ),
+);
 app.get("/echo", (c) => c.json({ hello: c.req.query("name") ?? "stranger" }));
 app.post("/echo", async (c) => {
   const body = await c.req.text();
