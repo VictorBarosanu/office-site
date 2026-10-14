@@ -2,9 +2,14 @@
 import { Hono } from "hono";
 import { logger } from "hono/logger";
 
+import { stringPages } from "./string-pages";
+
+// step 4: pages from strings
+
 const app = new Hono();
 app.use(logger());
 
+app.route("/strings", stringPages);
 app.get("/", (c) => {
   c.header("X-Course", "advanced-web");
   return c.text("Hello from Hono!\n");
