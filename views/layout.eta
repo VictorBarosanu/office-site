@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title><%= it.title %> · Office site</title>
+  </head>
+  <body>
+    <%~ include("./partials/nav") %>
+    <main><%~ it.body %></main>
+    <%~ include("./partials/footer") %>
+  </body>
+</html>

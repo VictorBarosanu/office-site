@@ -4,11 +4,16 @@ import { logger } from "hono/logger";
 
 import { stringPages } from "./string-pages";
 
+
+import { etaPages } from "./eta-pages";
+
+// step 5: pages from an engine
 // step 4: pages from strings
 
 const app = new Hono();
 app.use(logger());
 
+app.route("/eta", etaPages);
 app.route("/strings", stringPages);
 app.get("/", (c) => {
   c.header("X-Course", "advanced-web");
