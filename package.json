@@ -1,9 +1,20 @@
 {
   "name": "office",
   "private": true,
-  "workspaces": ["apps/*", "packages/*"],
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
+    "check": "ultracite check",
     "dev:server": "bun run --filter server dev",
-    "dev:web": "bun run --filter web dev"
+    "dev:web": "bun run --filter web dev",
+    "fix": "ultracite fix",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.15",
+    "husky": "^9.1.7",
+    "ultracite": "8.0.1"
   }
 }

@@ -30,9 +30,9 @@ export function EntranceForm({
     }
     setErrors({});
     const res = await fetch(`${api}/api/entrances`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(result.data),
+      headers: { "Content-Type": "application/json" },
+      method: "POST",
     });
     const data = await res.json();
     if (!res.ok) {

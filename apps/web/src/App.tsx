@@ -5,7 +5,6 @@ import { EntranceForm } from "./EntranceForm";
 
 const API = "http://localhost:3000";
 
-
 function EntranceItem({ entrance }: { entrance: Entrance }) {
   return (
     <li>
