@@ -1,5 +1,6 @@
 // src/index.tsx — the office site
 import { Hono } from "hono";
+import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 
 import { stringPages } from "./string-pages";
@@ -26,6 +27,8 @@ app.use(async (c, next) => {
   c.header("X-Request-Id", c.get("requestId"));
   c.header("X-Response-Time", `${ms}ms`);
 });
+
+app.use("/api/*", cors({ origin: "http://localhost:5173" }));
 
 app.use("*", serveStatic({ root: "./public" }));
 
