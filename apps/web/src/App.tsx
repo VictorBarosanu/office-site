@@ -1,14 +1,9 @@
 // apps/web/src/App.tsx — the list comes from the server
+import type { Entrance } from "@office/shared";
 import { useEffect, useState } from "react";
 
 const API = "http://localhost:3000";
 
-type Entrance = {
-  id: number;
-  address: string;
-  floors: number;
-  hasElevator: boolean;
-};
 
 function EntranceItem({ entrance }: { entrance: Entrance }) {
   return (
