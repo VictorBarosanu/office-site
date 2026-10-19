@@ -1,6 +1,6 @@
 {
-  "name": "lab-1",
-  "module": "index.ts",
+  "name": "office-site",
+  "module": "src/index.tsx",
   "type": "module",
   "private": true,
   "devDependencies": {

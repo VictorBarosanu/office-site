@@ -13,11 +13,6 @@ import { serveStatic } from "@hono/bun";
 
 import { readdir } from "node:fs/promises";
 
-
-
-// step 5: pages from an engine
-// step 4: pages from strings
-
 type Env = { Variables: { requestId: string } };
 const app = new Hono<Env>();
 app.use(logger());
@@ -33,8 +28,6 @@ app.use(async (c, next) => {
 
 app.use("*", serveStatic({ root: "./public" }));
 
-app.route("/eta", etaPages);
-app.route("/strings", stringPages);
 app.get("/", (c) => {
   const name = c.req.query("name") ?? "stranger";
   return c.html(
@@ -76,6 +69,14 @@ app.get("/teapot", (c) => {
   c.header("X-Brewed-By", "Hono");
   return c.text("I'm a teapot\n", 418);
 });
+app.get("/home", (c) => c.redirect("/"));
+
+// step 4: pages from strings
+app.route("/strings", stringPages);
+
+// step 5: pages from an engine
+app.route("/eta", etaPages);
+
 app.get("/files", async (c) => {
   const names = await readdir("./public");
   const files = names.map((name) => ({ name, size: Bun.file(`./public/${name}`).size }));
@@ -92,8 +93,6 @@ app.get("/files", async (c) => {
     </Layout>,
   );
 });
-app.get("/home", (c) => c.redirect("/"));
-
 app.get("/about", (c) =>
   c.html(
     <Layout title="About">
