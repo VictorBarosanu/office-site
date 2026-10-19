@@ -12,6 +12,7 @@ import { etaPages } from "./eta-pages";
 import { serveStatic } from "@hono/bun";
 
 import { readdir } from "node:fs/promises";
+import { entrancesApi } from "./entrances";
 
 type Env = { Variables: { requestId: string } };
 const app = new Hono<Env>();
@@ -70,6 +71,8 @@ app.get("/teapot", (c) => {
   return c.text("I'm a teapot\n", 418);
 });
 app.get("/home", (c) => c.redirect("/"));
+
+app.route("/api/entrances", entrancesApi);
 
 // step 4: pages from strings
 app.route("/strings", stringPages);
