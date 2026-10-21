@@ -1,6 +1,7 @@
 // apps/web/src/App.tsx — the list comes from the server
 import { useEffect, useState } from "react";
 import type { Entrance } from "@office/shared";
+import { EntranceForm } from "./EntranceForm";
 
 const API = "http://localhost:3000";
 
@@ -40,6 +41,11 @@ export default function App() {
     <main>
       <h1>Entrances</h1>
       {error && <p role="alert">Could not load the entrances: {error}</p>}
+      <EntranceForm
+        api={API}
+        onCreated={(entrance) => setEntrances([...entrances, entrance])}
+      />
+
       <ul>
         {entrances.map((entrance) => (
           <EntranceItem entrance={entrance} key={entrance.id} />
