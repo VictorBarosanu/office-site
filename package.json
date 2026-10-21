@@ -1,21 +1,9 @@
 {
-  "name": "office-site",
-  "module": "src/index.tsx",
-  "type": "module",
+  "name": "office",
   "private": true,
-  "devDependencies": {
-    "@types/bun": "latest"
-  },
+  "workspaces": ["apps/*", "packages/*"],
   "scripts": {
-    "typecheck": "bun check",
-    "dev": "bun --watch src/index.tsx"
-  },
-  "peerDependencies": {
-    "typescript": "^7"
-  },
-  "dependencies": {
-    "@hono/bun": "^1.0.1",
-    "eta": "^4.6.0",
-    "hono": "^4.13.13"
+    "dev:server": "bun run --filter server dev",
+    "dev:web": "bun run --filter web dev"
   }
 }

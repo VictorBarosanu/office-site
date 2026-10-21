@@ -5,6 +5,7 @@ import { logger } from "hono/logger";
 import { stringPages } from "./string-pages";
 
 import { team } from "./data";
+
 import { Layout } from "./views/Layout";
 
 import { etaPages } from "./eta-pages";
@@ -12,6 +13,9 @@ import { etaPages } from "./eta-pages";
 import { serveStatic } from "@hono/bun";
 
 import { readdir } from "node:fs/promises";
+
+import { entrancesApi } from "./entrances";
+
 
 type Env = { Variables: { requestId: string } };
 const app = new Hono<Env>();
@@ -128,5 +132,7 @@ app.onError((err, c) => {
 app.get("/boom", () => {
   throw new Error("Boom: a test error");
 });
+
+app.route("/api/entrances", entrancesApi);
 
 export default app;

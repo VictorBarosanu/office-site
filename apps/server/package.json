@@ -1,0 +1,21 @@
+{
+  "name": "server",
+  "module": "src/index.tsx",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "scripts": {
+    "typecheck": "bun check",
+    "dev": "bun --watch src/index.tsx"
+  },
+  "peerDependencies": {
+    "typescript": "^7"
+  },
+  "dependencies": {
+    "@hono/bun": "^1.0.1",
+    "eta": "^4.6.0",
+    "hono": "^4.13.13"
+  }
+}
