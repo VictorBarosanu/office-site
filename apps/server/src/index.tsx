@@ -16,6 +16,8 @@ import { readdir } from "node:fs/promises";
 
 import { entrancesApi } from "./entrances";
 
+import { cors } from "hono/cors";
+
 
 type Env = { Variables: { requestId: string } };
 const app = new Hono<Env>();
@@ -29,6 +31,8 @@ app.use(async (c, next) => {
   c.header("X-Request-Id", c.get("requestId"));
   c.header("X-Response-Time", `${ms}ms`);
 });
+
+app.use("/api/*", cors({ origin: "http://localhost:5173" }));
 
 app.use("*", serveStatic({ root: "./public" }));
 
