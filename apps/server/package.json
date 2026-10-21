@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@hono/bun": "^1.0.1",
+    "@office/shared": "workspace:*",
     "eta": "^4.6.0",
     "hono": "^4.13.13"
   }

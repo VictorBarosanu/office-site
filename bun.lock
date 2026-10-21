@@ -9,6 +9,7 @@
       "name": "server",
       "dependencies": {
         "@hono/bun": "^1.0.1",
+        "@office/shared": "workspace:*",
         "eta": "^4.6.0",
         "hono": "^4.13.13",
       },
@@ -23,6 +24,7 @@
       "name": "web",
       "version": "0.0.0",
       "dependencies": {
+        "@office/shared": "workspace:*",
         "react": "^19.3.1",
         "react-dom": "^19.3.1",
       },
@@ -36,9 +38,14 @@
         "vite": "^8.3.4",
       },
     },
+    "packages/shared": {
+      "name": "@office/shared",
+    },
   },
   "packages": {
     "@hono/bun": ["@hono/bun@1.0.1", "", { "peerDependencies": { "hono": ">=4.13.9 || ^5.0.0-0" } }, "sha512-74m9j/JY6sPhjOnZZSSPFDRWWRVqO8jI7cDTrcjXP+qnlCMOu0BCLnjq31LrKsWGWW7SsRWDzqrf9vDfnwtStA=="],
+
+    "@office/shared": ["@office/shared@workspace:packages/shared"],
 
     "@oxc-project/types": ["@oxc-project/types@0.155.0", "", {}, "sha512-SeE8JPwW1xs1tHeNycjUtUBdhorRa8o4jlvjwk49R7/Z291i+4DQa7JJIgOm/TaYQZx+QrPQbVJ/9c8dMIZN8Q=="],
 
