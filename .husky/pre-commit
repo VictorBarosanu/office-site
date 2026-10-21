@@ -1,0 +1,44 @@
+# ultracite
+#!/bin/sh
+# Fix only the staged files
+STAGED_FILES=$(git -c core.quotePath=false diff --cached --name-only --diff-filter=ACMR)
+if [ -z "$STAGED_FILES" ]; then
+  echo "No staged files to format"
+else
+  # Staged files that also have unstaged changes, found before fixing
+  UNSTAGED_FILES=$(git -c core.quotePath=false diff --name-only)
+  PARTIALLY_STAGED=""
+  FULLY_STAGED=$STAGED_FILES
+  if [ -n "$UNSTAGED_FILES" ]; then
+    PARTIALLY_STAGED=$(printf '%s\n' "$STAGED_FILES" | grep -Fx -- "$UNSTAGED_FILES" || true)
+  fi
+  if [ -n "$PARTIALLY_STAGED" ]; then
+    FULLY_STAGED=$(printf '%s\n' "$STAGED_FILES" | grep -Fxv -- "$PARTIALLY_STAGED" || true)
+  fi
+
+  # Run the fixer on the staged files, capturing the exit code so we can
+  # still re-stage and report
+  FORMAT_EXIT_CODE=0
+  git diff --cached --name-only -z --diff-filter=ACMR | xargs -0 bunx ultracite fix || FORMAT_EXIT_CODE=$?
+
+  # Re-stage the fully staged files; staging the others would add their
+  # unstaged changes to the commit
+  printf '%s\n' "$FULLY_STAGED" | while IFS= read -r file; do
+    if [ -f "$file" ]; then
+      git add -- "$file"
+    fi
+  done
+
+  if [ -n "$PARTIALLY_STAGED" ]; then
+    echo "These files also have unstaged changes, so Ultracite's fixes to them were left unstaged. Review and stage them:"
+    printf '%s\n' "$PARTIALLY_STAGED" | sed 's/^/  /'
+  fi
+
+  if [ $FORMAT_EXIT_CODE -ne 0 ]; then
+    echo "Ultracite found issues that could not be auto-fixed."
+    exit $FORMAT_EXIT_CODE
+  fi
+
+  echo "✨ Files formatted by Ultracite"
+fi
+# ultracite end

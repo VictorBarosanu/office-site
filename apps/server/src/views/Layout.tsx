@@ -11,15 +11,16 @@ export function Layout({ title, children }: LayoutProps) {
       <html lang="en">
         <head>
           <meta charset="utf-8" />
-          <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <meta content="width=device-width, initial-scale=1" name="viewport" />
           <title>{title} · Office site</title>
-          <link rel="stylesheet" href="/style.css" />
+          <link href="/style.css" rel="stylesheet" />
         </head>
         <body>
           <nav>
-            <img src="/logo.svg" alt="" width="24" height="24" />
+            <img alt="" height="24" src="/logo.svg" width="24" />
             <a href="/">Home</a> · <a href="/team">Team</a>
-            <a href="/">Home</a> · <a href="/team">Team</a> · <a href="/about">About</a>
+            <a href="/">Home</a> · <a href="/team">Team</a> ·{" "}
+            <a href="/about">About</a>
           </nav>
           <main>{children}</main>
           <footer>Office site · week 2</footer>

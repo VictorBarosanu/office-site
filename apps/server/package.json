@@ -1,22 +1,22 @@
 {
   "name": "server",
-  "module": "src/index.tsx",
-  "type": "module",
   "private": true,
-  "devDependencies": {
-    "@types/bun": "latest"
-  },
+  "type": "module",
+  "module": "src/index.tsx",
   "scripts": {
-    "typecheck": "bun check",
-    "dev": "bun --watch src/index.tsx"
-  },
-  "peerDependencies": {
-    "typescript": "^7"
+    "dev": "bun --watch src/index.tsx",
+    "typecheck": "bun check"
   },
   "dependencies": {
     "@hono/bun": "^1.0.1",
     "@office/shared": "workspace:*",
     "eta": "^4.6.0",
     "hono": "^4.13.13"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^7"
   }
 }

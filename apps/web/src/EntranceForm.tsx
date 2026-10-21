@@ -20,16 +20,20 @@ export function EntranceForm({
     e.preventDefault(); // no page reload: React handles the submit
     // the same checks as the server's, written a second time
     // the server's schema, run before anything leaves the browser
-    const result = NewEntrance.safeParse({ address, floors: Number(floors), hasElevator });
+    const result = NewEntrance.safeParse({
+      address,
+      floors: Number(floors),
+      hasElevator,
+    });
     if (!result.success) {
       setErrors(fieldErrors(result.error));
       return;
     }
     setErrors({});
     const res = await fetch(`${api}/api/entrances`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(result.data),
+      headers: { "Content-Type": "application/json" },
+      method: "POST",
     });
     const data = await res.json();
     if (!res.ok) {
