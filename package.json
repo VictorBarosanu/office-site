@@ -11,7 +11,8 @@
     "dev:web": "bun run --filter web dev",
     "fix": "ultracite fix",
     "migrate": "bun run --filter server migrate",
-    "prepare": "husky"
+    "prepare": "husky",
+    "seed": "bun run --filter server seed"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",
