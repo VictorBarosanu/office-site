@@ -5,6 +5,7 @@
   "module": "src/index.tsx",
   "scripts": {
     "dev": "bun --watch src/index.tsx",
+    "migrate": "bun scripts/migrate.ts",
     "typecheck": "bun check"
   },
   "dependencies": {

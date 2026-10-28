@@ -10,6 +10,7 @@
     "dev:server": "bun run --filter server dev",
     "dev:web": "bun run --filter web dev",
     "fix": "ultracite fix",
+    "migrate": "bun run --filter server migrate",
     "prepare": "husky"
   },
   "devDependencies": {
