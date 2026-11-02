@@ -5,6 +5,7 @@ import { serveStatic } from "@hono/bun";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
+import { buildingsApi } from "./buildings";
 import { team } from "./data";
 import { entrancesApi } from "./entrances";
 import { etaPages } from "./eta-pages";
@@ -144,5 +145,6 @@ app.get("/boom", () => {
 });
 
 app.route("/api/entrances", entrancesApi);
+app.route("/api/buildings", buildingsApi);
 
 export default app;
