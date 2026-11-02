@@ -1,7 +1,8 @@
 // apps/server/src/entrances.ts — the entrances API; the SQL lives in src/db/
 import { fieldErrors, NewEntrance } from "@office/shared";
 import { Hono } from "hono";
-import { createEntrance, listEntrances } from "./db/entrances";
+
+import { createEntrance, listEntrances, searchEntrances } from "./db/entrances";
 
 export const entrancesApi = new Hono();
 
@@ -13,4 +14,9 @@ entrancesApi.post("/", async (c) => {
     return c.json({ errors: fieldErrors(result.error) }, 400);
   }
   return c.json(createEntrance(result.data), 201);
+});
+
+entrancesApi.get("/", (c) => {
+  const q = c.req.query("q");
+  return c.json(q ? searchEntrances(q) : listEntrances());
 });
