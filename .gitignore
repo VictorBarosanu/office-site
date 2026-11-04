@@ -36,3 +36,7 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 # the database: data, not code (step 1 of lab 4)
 *.sqlite*
+
+
+# Turborepo: its cache and its logs (step 1 of lab 5)
+.turbo

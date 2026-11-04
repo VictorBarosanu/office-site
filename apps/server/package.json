@@ -7,6 +7,7 @@
     "dev": "bun --watch src/index.tsx",
     "migrate": "bun scripts/migrate.ts",
     "seed": "bun scripts/seed.ts",
+    "test": "bun test",
     "typecheck": "bun check"
   },
   "dependencies": {

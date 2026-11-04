@@ -7,16 +7,21 @@
   ],
   "scripts": {
     "check": "ultracite check",
+    "dev": "turbo run dev",
     "dev:server": "bun run --filter server dev",
     "dev:web": "bun run --filter web dev",
     "fix": "ultracite fix",
     "migrate": "bun run --filter server migrate",
     "prepare": "husky",
-    "seed": "bun run --filter server seed"
+    "seed": "bun run --filter server seed",
+    "test": "turbo run test",
+    "typecheck": "turbo run typecheck"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",
     "husky": "^9.1.7",
+    "turbo": "2.11.10",
     "ultracite": "8.0.1"
-  }
+  },
+  "packageManager": "bun@1.4.4"
 }
