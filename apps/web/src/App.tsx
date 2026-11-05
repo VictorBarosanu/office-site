@@ -1,14 +1,20 @@
-import type { Building, Entrance } from "@office/shared";
+import type { Building, Entrance } from "field-app-contract/contract";
 import { useEffect, useState } from "react";
 import { EntranceForm } from "./EntranceForm";
 
 const API = "http://localhost:3000";
 
-function EntranceItem({ entrance }: { entrance: Entrance }) {
+function EntranceItem({
+  building,
+  entrance,
+}: {
+  building: Building | undefined;
+  entrance: Entrance;
+}) {
   return (
     <li>
-      {entrance.address} ({entrance.buildingName}) — {entrance.floors} floors,{" "}
-      {entrance.hasElevator ? "elevator" : "no elevator"}
+      {entrance.street} {entrance.number}, {entrance.entranceName} (
+      {building?.label ?? "no building"}) — {entrance.surveyStatus}
     </li>
   );
 }
@@ -51,7 +57,12 @@ export default function App() {
       />
       <ul>
         {entrances.map((entrance) => (
-          <EntranceItem entrance={entrance} key={entrance.id} />
+          <EntranceItem
+            // the contract has no building name on an entrance: look it up
+            building={buildings.find((b) => b.id === entrance.buildingId)}
+            entrance={entrance}
+            key={entrance.id}
+          />
         ))}
       </ul>
     </main>
