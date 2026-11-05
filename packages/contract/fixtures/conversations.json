@@ -1,0 +1,33 @@
+[
+  {
+    "id": "b74aef03-d682-4c83-a0db-19d0179725ab",
+    "createdAt": "2026-10-12T08:00:00Z",
+    "updatedAt": "2026-10-12T08:00:00Z",
+    "kind": "direct",
+    "participantIds": [
+      "7d07e973-eebc-44b1-b7cd-bd1cd2fff3c5",
+      "26bc4094-d586-4223-9561-ef242d835677"
+    ]
+  },
+  {
+    "id": "f2ed801e-5b46-4d5c-b918-38f2733e4f30",
+    "createdAt": "2026-10-12T08:00:00Z",
+    "updatedAt": "2026-10-12T08:00:00Z",
+    "kind": "direct",
+    "participantIds": [
+      "7d07e973-eebc-44b1-b7cd-bd1cd2fff3c5",
+      "e1d1772a-48c0-4cb7-be24-ed343b29d9a1"
+    ]
+  },
+  {
+    "id": "d58696b1-fa9c-490d-bae6-ae8d13167d95",
+    "createdAt": "2026-10-12T08:00:00Z",
+    "updatedAt": "2026-10-12T08:00:00Z",
+    "kind": "broadcast",
+    "participantIds": [
+      "7d07e973-eebc-44b1-b7cd-bd1cd2fff3c5",
+      "26bc4094-d586-4223-9561-ef242d835677",
+      "e1d1772a-48c0-4cb7-be24-ed343b29d9a1"
+    ]
+  }
+]

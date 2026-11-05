@@ -1,0 +1,10 @@
+name: field_app_contract
+description: The field app's data contract (Dart mirror of contract.ts) — Mobile Devices Programming / Advanced Web Development, RAU 2026.
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: ^3.9.0
+
+dev_dependencies:
+  test: ^1.26.0

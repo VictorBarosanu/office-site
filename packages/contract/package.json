@@ -1,0 +1,14 @@
+{
+  "name": "field-app-contract",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "The field app's data contract — Mobile Devices Programming / Advanced Web Development, RAU 2026",
+  "license": "MIT",
+  "scripts": {
+    "test": "bun test"
+  },
+  "dependencies": {
+    "zod": "4.6.7"
+  }
+}

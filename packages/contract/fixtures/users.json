@@ -1,0 +1,26 @@
+[
+  {
+    "id": "7d07e973-eebc-44b1-b7cd-bd1cd2fff3c5",
+    "createdAt": "2026-10-12T08:00:00Z",
+    "updatedAt": "2026-10-12T08:00:00Z",
+    "role": "admin",
+    "name": "Irina Matei",
+    "email": "irina.matei@example.com"
+  },
+  {
+    "id": "26bc4094-d586-4223-9561-ef242d835677",
+    "createdAt": "2026-10-12T08:00:00Z",
+    "updatedAt": "2026-10-12T08:00:00Z",
+    "role": "field",
+    "name": "Andrei Ionescu",
+    "email": "andrei.ionescu@example.com"
+  },
+  {
+    "id": "e1d1772a-48c0-4cb7-be24-ed343b29d9a1",
+    "createdAt": "2026-10-12T08:00:00Z",
+    "updatedAt": "2026-10-12T08:00:00Z",
+    "role": "field",
+    "name": "Maria Stan",
+    "email": "maria.stan@example.com"
+  }
+]

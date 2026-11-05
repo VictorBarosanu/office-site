@@ -1,0 +1,168 @@
+[
+  {
+    "id": "f6f2d1fd-0221-48d5-8fb8-bc54c9100830",
+    "createdAt": "2026-10-13T07:00:00Z",
+    "updatedAt": "2026-10-13T07:00:00Z",
+    "adminId": "7d07e973-eebc-44b1-b7cd-bd1cd2fff3c5",
+    "workerId": "26bc4094-d586-4223-9561-ef242d835677",
+    "date": "2026-10-14",
+    "name": "Old town and Unirii",
+    "stops": [
+      {
+        "id": "680b8b1f-c66c-4bc7-a636-e3c9fc086d03",
+        "createdAt": "2026-10-13T07:00:00Z",
+        "updatedAt": "2026-10-13T07:00:00Z",
+        "routeId": "f6f2d1fd-0221-48d5-8fb8-bc54c9100830",
+        "entranceId": "2511ddfb-2828-46f5-b23c-39501d862310",
+        "order": 1,
+        "status": "done"
+      },
+      {
+        "id": "b6e816fd-5163-44b9-8710-5d0f4d7f504b",
+        "createdAt": "2026-10-13T07:00:00Z",
+        "updatedAt": "2026-10-13T07:00:00Z",
+        "routeId": "f6f2d1fd-0221-48d5-8fb8-bc54c9100830",
+        "entranceId": "40fa5e4a-45f2-4dad-80d8-a454317b5a30",
+        "order": 2,
+        "status": "todo"
+      },
+      {
+        "id": "11421bc6-a3c8-4582-a08c-978a7a834184",
+        "createdAt": "2026-10-13T07:00:00Z",
+        "updatedAt": "2026-10-13T07:00:00Z",
+        "routeId": "f6f2d1fd-0221-48d5-8fb8-bc54c9100830",
+        "entranceId": "b92b9368-b087-4a30-8218-ccc6a337486c",
+        "order": 3,
+        "status": "todo"
+      },
+      {
+        "id": "129c5cec-b814-4e53-92e5-0fdbd9985194",
+        "createdAt": "2026-10-13T07:00:00Z",
+        "updatedAt": "2026-10-13T07:00:00Z",
+        "routeId": "f6f2d1fd-0221-48d5-8fb8-bc54c9100830",
+        "entranceId": "26b65692-af82-4759-ba31-7dd0e37c3a3c",
+        "order": 4,
+        "status": "done"
+      },
+      {
+        "id": "f63ad40f-95af-4ff2-897d-68f6c13b3712",
+        "createdAt": "2026-10-13T07:00:00Z",
+        "updatedAt": "2026-10-13T07:00:00Z",
+        "routeId": "f6f2d1fd-0221-48d5-8fb8-bc54c9100830",
+        "entranceId": "98c9f46a-9260-42b0-8442-be559c262639",
+        "order": 5,
+        "status": "todo"
+      },
+      {
+        "id": "593ae0ac-3106-40aa-885b-bf51fa581707",
+        "createdAt": "2026-10-13T07:00:00Z",
+        "updatedAt": "2026-10-13T07:00:00Z",
+        "routeId": "f6f2d1fd-0221-48d5-8fb8-bc54c9100830",
+        "entranceId": "1f2c97d5-d068-48d7-96fa-1ad9a5cf5920",
+        "order": 6,
+        "status": "todo"
+      },
+      {
+        "id": "e64c4e50-8c1a-4271-92cf-c5c904238c22",
+        "createdAt": "2026-10-13T07:00:00Z",
+        "updatedAt": "2026-10-13T07:00:00Z",
+        "routeId": "f6f2d1fd-0221-48d5-8fb8-bc54c9100830",
+        "entranceId": "8a13bef0-bcae-42c9-9d03-91156844fa3f",
+        "order": 7,
+        "status": "todo"
+      },
+      {
+        "id": "21adb178-ed94-4d6b-83bf-eb0910be13e0",
+        "createdAt": "2026-10-13T07:00:00Z",
+        "updatedAt": "2026-10-13T07:00:00Z",
+        "routeId": "f6f2d1fd-0221-48d5-8fb8-bc54c9100830",
+        "entranceId": "beeddd2e-d30e-4ff3-8cec-fd01548ec461",
+        "order": 8,
+        "status": "todo"
+      },
+      {
+        "id": "b84355cc-4211-4353-95e5-efe84f9bed04",
+        "createdAt": "2026-10-13T07:00:00Z",
+        "updatedAt": "2026-10-13T07:00:00Z",
+        "routeId": "f6f2d1fd-0221-48d5-8fb8-bc54c9100830",
+        "entranceId": "0dd6d04d-495f-43f6-8607-98ebf25eaf87",
+        "order": 9,
+        "status": "todo"
+      }
+    ]
+  },
+  {
+    "id": "9e65acb1-4bf7-48c8-a3da-9dc14941cf38",
+    "createdAt": "2026-10-13T07:00:00Z",
+    "updatedAt": "2026-10-13T07:00:00Z",
+    "adminId": "7d07e973-eebc-44b1-b7cd-bd1cd2fff3c5",
+    "workerId": "e1d1772a-48c0-4cb7-be24-ed343b29d9a1",
+    "date": "2026-10-14",
+    "name": "Decebal and Ștefan cel Mare",
+    "stops": [
+      {
+        "id": "b285019c-a2d7-4187-a239-b47b7d6fbeb7",
+        "createdAt": "2026-10-13T07:00:00Z",
+        "updatedAt": "2026-10-13T07:00:00Z",
+        "routeId": "9e65acb1-4bf7-48c8-a3da-9dc14941cf38",
+        "entranceId": "b9f5f8a6-fba7-4613-a6db-2b524235613d",
+        "order": 1,
+        "status": "todo"
+      },
+      {
+        "id": "39a33f7c-ec56-499c-9edd-320650da1985",
+        "createdAt": "2026-10-13T07:00:00Z",
+        "updatedAt": "2026-10-13T07:00:00Z",
+        "routeId": "9e65acb1-4bf7-48c8-a3da-9dc14941cf38",
+        "entranceId": "f426b618-5f77-45b8-b1c5-a00befae0a6e",
+        "order": 2,
+        "status": "todo"
+      },
+      {
+        "id": "f5e1996c-ef73-4d3d-865e-2e910cccc8b6",
+        "createdAt": "2026-10-13T07:00:00Z",
+        "updatedAt": "2026-10-13T07:00:00Z",
+        "routeId": "9e65acb1-4bf7-48c8-a3da-9dc14941cf38",
+        "entranceId": "ebc34e07-556f-4dfc-817f-993f21d317a0",
+        "order": 3,
+        "status": "skipped"
+      },
+      {
+        "id": "0f94ef16-b562-439b-82d2-2ccd4991fbf9",
+        "createdAt": "2026-10-13T07:00:00Z",
+        "updatedAt": "2026-10-13T07:00:00Z",
+        "routeId": "9e65acb1-4bf7-48c8-a3da-9dc14941cf38",
+        "entranceId": "b88e0816-bd04-4d1b-abdc-8a74ac9c26be",
+        "order": 4,
+        "status": "todo"
+      },
+      {
+        "id": "c64922a5-517e-4281-86d3-3a79d596f729",
+        "createdAt": "2026-10-13T07:00:00Z",
+        "updatedAt": "2026-10-13T07:00:00Z",
+        "routeId": "9e65acb1-4bf7-48c8-a3da-9dc14941cf38",
+        "entranceId": "dc04c635-6460-401a-9b92-3446ee5740dc",
+        "order": 5,
+        "status": "todo"
+      },
+      {
+        "id": "b754dee8-22df-45e6-904b-3ed99e15fa37",
+        "createdAt": "2026-10-13T07:00:00Z",
+        "updatedAt": "2026-10-13T07:00:00Z",
+        "routeId": "9e65acb1-4bf7-48c8-a3da-9dc14941cf38",
+        "entranceId": "226573f9-a1d1-4e50-a1f8-657a13564cdb",
+        "order": 6,
+        "status": "todo"
+      },
+      {
+        "id": "cf60b9f4-178f-46f7-981c-0b216a0254dc",
+        "createdAt": "2026-10-13T07:00:00Z",
+        "updatedAt": "2026-10-13T07:00:00Z",
+        "routeId": "9e65acb1-4bf7-48c8-a3da-9dc14941cf38",
+        "entranceId": "688e4877-27fb-4f60-bd21-a6b06d2f5f2d",
+        "order": 7,
+        "status": "todo"
+      }
+    ]
+  }
+]

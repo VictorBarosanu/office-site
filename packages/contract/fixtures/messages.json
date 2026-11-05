@@ -1,0 +1,142 @@
+[
+  {
+    "id": "efdc6548-43a5-4d25-9281-91e61a8df83b",
+    "createdAt": "2026-10-13T07:05:00Z",
+    "updatedAt": "2026-10-13T07:05:00Z",
+    "conversationId": "d58696b1-fa9c-490d-bae6-ae8d13167d95",
+    "authorId": "7d07e973-eebc-44b1-b7cd-bd1cd2fff3c5",
+    "text": "Good morning! Routes for Wednesday are out. Check My route before you leave.",
+    "sentAt": "2026-10-13T07:05:00Z",
+    "readAt": {
+      "26bc4094-d586-4223-9561-ef242d835677": "2026-10-13T07:20:00Z",
+      "e1d1772a-48c0-4cb7-be24-ed343b29d9a1": "2026-10-13T07:31:00Z"
+    }
+  },
+  {
+    "id": "f2f97b38-3f05-4dbc-8d9a-21ca850c8290",
+    "createdAt": "2026-10-13T07:33:00Z",
+    "updatedAt": "2026-10-13T07:33:00Z",
+    "conversationId": "d58696b1-fa9c-490d-bae6-ae8d13167d95",
+    "authorId": "e1d1772a-48c0-4cb7-be24-ed343b29d9a1",
+    "text": "Got it. Is the Decebal block the one with four entrances?",
+    "sentAt": "2026-10-13T07:33:00Z",
+    "readAt": {
+      "7d07e973-eebc-44b1-b7cd-bd1cd2fff3c5": "2026-10-13T07:40:00Z",
+      "26bc4094-d586-4223-9561-ef242d835677": "2026-10-13T08:02:00Z"
+    }
+  },
+  {
+    "id": "cd7a0bee-71cf-48e2-ba31-a26299c8592b",
+    "createdAt": "2026-10-13T07:41:00Z",
+    "updatedAt": "2026-10-13T07:41:00Z",
+    "conversationId": "d58696b1-fa9c-490d-bae6-ae8d13167d95",
+    "authorId": "7d07e973-eebc-44b1-b7cd-bd1cd2fff3c5",
+    "text": "Yes, S12. Start from Sc. 1 at the east end.",
+    "sentAt": "2026-10-13T07:41:00Z",
+    "readAt": {
+      "e1d1772a-48c0-4cb7-be24-ed343b29d9a1": "2026-10-13T07:45:00Z"
+    }
+  },
+  {
+    "id": "59ceae16-5984-4d53-9701-b2a15c8305ba",
+    "createdAt": "2026-10-13T12:00:00Z",
+    "updatedAt": "2026-10-13T12:00:00Z",
+    "conversationId": "d58696b1-fa9c-490d-bae6-ae8d13167d95",
+    "authorId": "7d07e973-eebc-44b1-b7cd-bd1cd2fff3c5",
+    "text": "Reminder: photograph the entrance door and the mailbox panel for every stop.",
+    "sentAt": "2026-10-13T12:00:00Z",
+    "readAt": {}
+  },
+  {
+    "id": "168ed7a6-99ac-4e3b-9a76-106618ab5b14",
+    "createdAt": "2026-10-12T12:10:00Z",
+    "updatedAt": "2026-10-12T12:10:00Z",
+    "conversationId": "b74aef03-d682-4c83-a0db-19d0179725ab",
+    "authorId": "7d07e973-eebc-44b1-b7cd-bd1cd2fff3c5",
+    "text": "Andrei, thanks for Lipscani 41 Sc. A. Nice photos.",
+    "sentAt": "2026-10-12T12:10:00Z",
+    "readAt": {
+      "26bc4094-d586-4223-9561-ef242d835677": "2026-10-12T12:30:00Z"
+    }
+  },
+  {
+    "id": "1fe8fde0-8f99-4b4a-b8d5-3ce7dd3dacee",
+    "createdAt": "2026-10-12T12:31:00Z",
+    "updatedAt": "2026-10-12T12:31:00Z",
+    "conversationId": "b74aef03-d682-4c83-a0db-19d0179725ab",
+    "authorId": "26bc4094-d586-4223-9561-ef242d835677",
+    "text": "Thanks. Bloc U7 Sc. 1: the pin was off, I corrected it.",
+    "sentAt": "2026-10-12T12:31:00Z",
+    "readAt": {
+      "7d07e973-eebc-44b1-b7cd-bd1cd2fff3c5": "2026-10-12T13:00:00Z"
+    }
+  },
+  {
+    "id": "f6dcae35-bbc9-48fa-a4bf-88115ae7f449",
+    "createdAt": "2026-10-12T13:02:00Z",
+    "updatedAt": "2026-10-12T13:02:00Z",
+    "conversationId": "b74aef03-d682-4c83-a0db-19d0179725ab",
+    "authorId": "7d07e973-eebc-44b1-b7cd-bd1cd2fff3c5",
+    "text": "Saw it. Can you check whether the plate really says 17A?",
+    "sentAt": "2026-10-12T13:02:00Z",
+    "readAt": {
+      "26bc4094-d586-4223-9561-ef242d835677": "2026-10-12T13:20:00Z"
+    }
+  },
+  {
+    "id": "fb798649-f45b-427d-a1a4-fc5d3365bf40",
+    "createdAt": "2026-10-12T13:21:00Z",
+    "updatedAt": "2026-10-12T13:21:00Z",
+    "conversationId": "b74aef03-d682-4c83-a0db-19d0179725ab",
+    "authorId": "26bc4094-d586-4223-9561-ef242d835677",
+    "text": "It does, 17A. Updated the address.",
+    "sentAt": "2026-10-12T13:21:00Z",
+    "readAt": {
+      "7d07e973-eebc-44b1-b7cd-bd1cd2fff3c5": "2026-10-12T13:25:00Z"
+    }
+  },
+  {
+    "id": "b63acf78-5ed7-4db6-aa2d-f8f65d7a73fc",
+    "createdAt": "2026-10-13T08:15:00Z",
+    "updatedAt": "2026-10-13T08:15:00Z",
+    "conversationId": "b74aef03-d682-4c83-a0db-19d0179725ab",
+    "authorId": "7d07e973-eebc-44b1-b7cd-bd1cd2fff3c5",
+    "text": "Tomorrow: Victoriei 112 first, the administrator leaves at 11.",
+    "sentAt": "2026-10-13T08:15:00Z",
+    "readAt": {}
+  },
+  {
+    "id": "a0c71eed-51fe-4a9f-acd6-0039788ecc06",
+    "createdAt": "2026-10-13T07:10:00Z",
+    "updatedAt": "2026-10-13T07:10:00Z",
+    "conversationId": "f2ed801e-5b46-4d5c-b918-38f2733e4f30",
+    "authorId": "7d07e973-eebc-44b1-b7cd-bd1cd2fff3c5",
+    "text": "Maria, your route starts at Decebal tomorrow.",
+    "sentAt": "2026-10-13T07:10:00Z",
+    "readAt": {
+      "e1d1772a-48c0-4cb7-be24-ed343b29d9a1": "2026-10-13T07:30:00Z"
+    }
+  },
+  {
+    "id": "65039fff-945c-4da6-80a9-b31dd308e65a",
+    "createdAt": "2026-10-13T07:32:00Z",
+    "updatedAt": "2026-10-13T07:32:00Z",
+    "conversationId": "f2ed801e-5b46-4d5c-b918-38f2733e4f30",
+    "authorId": "e1d1772a-48c0-4cb7-be24-ed343b29d9a1",
+    "text": "OK. Sc. 3 at Decebal was closed last week, should I skip it?",
+    "sentAt": "2026-10-13T07:32:00Z",
+    "readAt": {
+      "7d07e973-eebc-44b1-b7cd-bd1cd2fff3c5": "2026-10-13T07:50:00Z"
+    }
+  },
+  {
+    "id": "768dc31c-44a3-41af-a9b9-a3532a5f1131",
+    "createdAt": "2026-10-13T07:52:00Z",
+    "updatedAt": "2026-10-13T07:52:00Z",
+    "conversationId": "f2ed801e-5b46-4d5c-b918-38f2733e4f30",
+    "authorId": "7d07e973-eebc-44b1-b7cd-bd1cd2fff3c5",
+    "text": "Try once; if it is still closed, mark it skipped and say why.",
+    "sentAt": "2026-10-13T07:52:00Z",
+    "readAt": {}
+  }
+]

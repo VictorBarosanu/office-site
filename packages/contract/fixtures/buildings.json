@@ -1,0 +1,44 @@
+[
+  {
+    "id": "4d76b72c-33e5-484c-8c44-3165dc270dca",
+    "createdAt": "2026-10-12T08:00:00Z",
+    "updatedAt": "2026-10-12T08:00:00Z",
+    "label": "Lipscani 41",
+    "comment": "Old town; the courtyard gate is locked after 18:00."
+  },
+  {
+    "id": "36a5962b-ea1c-46ab-abc3-7e564a2995f8",
+    "createdAt": "2026-10-12T08:00:00Z",
+    "updatedAt": "2026-10-12T08:00:00Z",
+    "label": "Bloc U7",
+    "comment": null
+  },
+  {
+    "id": "833157a2-177d-4fa2-9f64-585f883c3db1",
+    "createdAt": "2026-10-12T08:00:00Z",
+    "updatedAt": "2026-10-12T08:00:00Z",
+    "label": "Victoriei 112",
+    "comment": "Ask the administrator for the roof key."
+  },
+  {
+    "id": "75afd16b-653c-428c-a07e-a360991c02e5",
+    "createdAt": "2026-10-12T08:00:00Z",
+    "updatedAt": "2026-10-12T08:00:00Z",
+    "label": "Franceză 28",
+    "comment": null
+  },
+  {
+    "id": "f288f419-881e-4139-9cea-c1c7573db573",
+    "createdAt": "2026-10-12T08:00:00Z",
+    "updatedAt": "2026-10-12T08:00:00Z",
+    "label": "Bloc S12",
+    "comment": "Four entrances in one long block."
+  },
+  {
+    "id": "e004d5a3-2d7e-4c91-b6c3-6c97710745d6",
+    "createdAt": "2026-10-12T08:00:00Z",
+    "updatedAt": "2026-10-12T08:00:00Z",
+    "label": "Bloc 21",
+    "comment": null
+  }
+]
