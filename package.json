@@ -9,6 +9,7 @@
     "check": "ultracite check",
     "db:generate": "bun run --filter server db:generate",
     "db:migrate": "bun run --filter server db:migrate",
+    "db:seed": "bun run --filter server db:seed",
     "dev": "turbo run dev",
     "dev:server": "bun run --filter server dev",
     "dev:web": "bun run --filter web dev",
