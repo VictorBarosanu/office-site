@@ -4,9 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "bun scripts/migrate.ts",
-    "dev": "bun --watch src/index.tsx",
+    "build": "tsc -b && vite build",
+    "dev": "vite",
+    "lint": "eslint .",
+    "preview": "vite preview",
     "test": "bun test --pass-with-no-tests",
     "typecheck": "bun check"
   },
