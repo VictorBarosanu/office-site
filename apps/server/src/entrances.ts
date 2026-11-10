@@ -2,11 +2,19 @@
 import { fieldErrors, NewEntrance } from "@office/shared";
 import { Hono } from "hono";
 
-import { createEntrance, listEntrances, searchEntrances } from "./db/entrances";
+import {
+  createEntrance,
+  deleteEntrance,
+  listEntrances,
+  searchEntrances,
+} from "./db/entrances";
 
 export const entrancesApi = new Hono();
 
-entrancesApi.get("/", (c) => c.json(listEntrances()));
+entrancesApi.get("/", (c) => {
+  const q = c.req.query("q");
+  return c.json(q ? searchEntrances(q) : listEntrances());
+});
 
 entrancesApi.post("/", async (c) => {
   const result = NewEntrance.safeParse(await c.req.json().catch(() => null));
@@ -16,7 +24,9 @@ entrancesApi.post("/", async (c) => {
   return c.json(createEntrance(result.data), 201);
 });
 
-entrancesApi.get("/", (c) => {
-  const q = c.req.query("q");
-  return c.json(q ? searchEntrances(q) : listEntrances());
+entrancesApi.delete("/:id", (c) => {
+  if (deleteEntrance(c.req.param("id")) === 0) {
+    return c.json({ error: "Not found" }, 404);
+  }
+  return c.body(null, 204);
 });

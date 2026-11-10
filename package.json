@@ -7,13 +7,13 @@
   ],
   "scripts": {
     "check": "ultracite check",
+    "db:generate": "bun run --filter server db:generate",
+    "db:migrate": "bun run --filter server db:migrate",
     "dev": "turbo run dev",
     "dev:server": "bun run --filter server dev",
     "dev:web": "bun run --filter web dev",
     "fix": "ultracite fix",
-    "migrate": "bun run --filter server migrate",
     "prepare": "husky",
-    "seed": "bun run --filter server seed",
     "test": "turbo run test",
     "typecheck": "turbo run typecheck"
   },

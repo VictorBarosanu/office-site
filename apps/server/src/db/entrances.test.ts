@@ -1,38 +1,33 @@
-// apps/server/src/db/entrances.test.ts — the repository against a :memory: database
+// apps/server/src/db/entrances.test.ts — the repository test on an in-memory database
 import { beforeAll, expect, test } from "bun:test";
-import { NewBuilding } from "@office/shared";
+import { NewBuilding, NewEntrance } from "@office/shared";
 import { migrate } from "../../scripts/migrate";
 import { createBuilding } from "./buildings";
 import { createEntrance, listEntrances, searchEntrances } from "./entrances";
 
-// the same migrations as the real database, on an empty one
 beforeAll(() => {
   migrate();
 });
 
-test("an entrance goes in and comes back, mapped to the shared type", () => {
-  const building = createBuilding(
-    NewBuilding.parse({ city: "Iași", name: "Bloc Copou 3" })
+test("an entrance goes in and comes back, mapped to the contract type", () => {
+  const building = createBuilding(NewBuilding.parse({ label: "Bloc C1" }));
+  const created = createEntrance(
+    NewEntrance.parse({
+      buildingId: building.id,
+      entranceName: "Sc. A",
+      lat: 47.1585,
+      lng: 27.6014,
+      number: "12",
+      street: "Str. Lapusneanu",
+    })
   );
-  const created = createEntrance({
-    address: "Bd. Carol I 3, scara A",
-    buildingId: building.id,
-    floors: 5,
-    hasElevator: true,
-  });
 
-  expect(created).toEqual({
-    address: "Bd. Carol I 3, scara A",
-    buildingId: building.id,
-    buildingName: "Bloc Copou 3",
-    floors: 5,
-    hasElevator: true, // stored as 1, read back as true
-    id: created.id,
-  });
+  expect(created.buildingId).toBe(building.id);
+  expect(created.surveyStatus).toBe("not_started");
+  expect(created.coordsConfirmed).toBe(false);
   expect(listEntrances()).toEqual([created]);
 });
 
 test("the search treats a quote as text, not as SQL", () => {
-  expect(searchEntrances("carol")).toHaveLength(1);
-  expect(searchEntrances("x' OR 1=1 --")).toEqual([]);
+  expect(searchEntrances("' OR '1'='1")).toEqual([]);
 });

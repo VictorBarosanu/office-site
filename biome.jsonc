@@ -2,8 +2,9 @@
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
   "extends": ["ultracite/biome/core"],
   "files": {
-    // the contract is copied from its own repository: never reformatted here
-    "includes": ["!packages/contract"]
+    // copied from the contract's repository, and written by drizzle-kit:
+    // never reformatted here
+    "includes": ["!packages/contract", "!apps/server/drizzle"]
   },
   "javascript": {
     // Bun is a global on the server, like window in the browser

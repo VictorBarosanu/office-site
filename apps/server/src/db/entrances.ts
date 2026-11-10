@@ -1,75 +1,46 @@
-// apps/server/src/db/entrances.ts — the SQL for entrances; routes call these functions
-import type { Entrance, NewEntrance } from "@office/shared";
+// apps/server/src/db/entrances.ts — the queries for entrances; routes call these functions
+import type { NewEntrance } from "@office/shared";
+import { asc, eq, like } from "drizzle-orm";
+import type { Entrance } from "field-app-contract/contract";
 import { db } from "../db";
+import { entrances } from "./schema";
 
-// a row as SQLite gives it: snake_case, the boolean as 0 or 1
-interface EntranceRow {
-  address: string;
-  building_id: number;
-  building_name: string;
-  floors: number;
-  has_elevator: number;
-  id: number;
-}
+// a street, then its numbers, then the entrances of each number
+const BY_ADDRESS = [
+  asc(entrances.street),
+  asc(entrances.number),
+  asc(entrances.entranceName),
+];
 
-const SELECT_ENTRANCES = `
-  SELECT e.id, e.building_id, b.name AS building_name,
-         e.address, e.floors, e.has_elevator
-  FROM entrances e
-  JOIN buildings b ON b.id = e.building_id`;
-
-// the row → the shared type: camelCase, 0/1 → false/true
-function toEntrance(row: EntranceRow): Entrance {
-  return {
-    address: row.address,
-    buildingId: row.building_id,
-    buildingName: row.building_name,
-    floors: row.floors,
-    hasElevator: row.has_elevator === 1,
-    id: row.id,
-  };
-}
-
+// the row is already the contract's Entrance: camelCase, booleans, no mapping
 export function listEntrances(): Entrance[] {
   return db
-    .query<EntranceRow, []>(`${SELECT_ENTRANCES} ORDER BY e.id`)
-    .all()
-    .map(toEntrance);
-}
-
-export function getEntrance(id: number): Entrance | null {
-  const row = db
-    .query<EntranceRow, [number]>(`${SELECT_ENTRANCES} WHERE e.id = ?`)
-    .get(id);
-  return row ? toEntrance(row) : null;
+    .select()
+    .from(entrances)
+    .orderBy(...BY_ADDRESS)
+    .all();
 }
 
 export function createEntrance(entrance: NewEntrance): Entrance {
-  const row = db
-    .query<{ id: number }, [number, string, number, number]>(
-      `INSERT INTO entrances (building_id, address, floors, has_elevator)
-       VALUES (?, ?, ?, ?) RETURNING *`
-    )
-    .get(
-      entrance.buildingId,
-      entrance.address,
-      entrance.floors,
-      entrance.hasElevator ? 1 : 0
-    );
-  // read it back through the JOIN, so the answer has the building's name
-  const created = row ? getEntrance(row.id) : null;
-  if (!created) {
-    throw new Error("INSERT … RETURNING gave no row");
-  }
-  return created;
+  // the surveyed fields start empty: their defaults are in the schema
+  return db.insert(entrances).values(entrance).returning().get();
 }
 
 export function searchEntrances(q: string): Entrance[] {
-  // q travels as a bound parameter: data, never part of the SQL text
+  // Drizzle sends q as a bound parameter, as lab 4 did by hand
   return db
-    .query<EntranceRow, [string]>(
-      `${SELECT_ENTRANCES} WHERE e.address LIKE ? ORDER BY e.id`
-    )
-    .all(`%${q}%`)
-    .map(toEntrance);
+    .select()
+    .from(entrances)
+    .where(like(entrances.street, `%${q}%`))
+    .orderBy(...BY_ADDRESS)
+    .all();
+}
+
+// the number of rows deleted: 0 when there was no such entrance
+export function deleteEntrance(id: string): number {
+  return db
+    .delete(entrances)
+    .where(eq(entrances.id, id))
+    .returning({ id: entrances.id })
+    .all().length;
 }
