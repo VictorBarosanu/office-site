@@ -21,6 +21,11 @@ export function listEntrances(): Entrance[] {
     .all();
 }
 
+// one entrance by its id, or undefined when there is none
+export function getEntrance(id: string): Entrance | undefined {
+  return db.select().from(entrances).where(eq(entrances.id, id)).get();
+}
+
 export function createEntrance(entrance: NewEntrance): Entrance {
   // the surveyed fields start empty: their defaults are in the schema
   return db.insert(entrances).values(entrance).returning().get();

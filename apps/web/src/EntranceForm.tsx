@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { API } from "./api";
 
 type Errors = Partial<Record<string, string[]>>;
 
@@ -27,11 +28,9 @@ const toNumber = (text: string) =>
   text.trim() === "" ? Number.NaN : Number(text);
 
 export function EntranceForm({
-  api,
   buildings,
   onCreated,
 }: {
-  api: string;
   buildings: Building[];
   onCreated: (entrance: Entrance) => void;
 }) {
@@ -62,7 +61,7 @@ export function EntranceForm({
     setErrors({});
     setSubmitting(true);
     try {
-      const res = await fetch(`${api}/api/entrances`, {
+      const res = await fetch(`${API}/api/entrances`, {
         body: JSON.stringify(result.data),
         headers: { "Content-Type": "application/json" },
         method: "POST",

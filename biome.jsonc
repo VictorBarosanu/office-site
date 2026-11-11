@@ -2,9 +2,13 @@
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
   "extends": ["ultracite/biome/core"],
   "files": {
-    // copied from the contract's repository, and written by drizzle-kit:
-    // never reformatted here
-    "includes": ["!packages/contract", "!apps/server/drizzle"]
+    // copied from the contract's repository, written by drizzle-kit or by
+    // the router's plugin: never reformatted here
+    "includes": [
+      "!packages/contract",
+      "!apps/server/drizzle",
+      "!apps/web/src/routeTree.gen.ts"
+    ]
   },
   "javascript": {
     // Bun is a global on the server, like window in the browser

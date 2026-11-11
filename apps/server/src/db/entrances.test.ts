@@ -5,7 +5,12 @@ import entranceRows from "field-app-contract/fixtures/entrances.json";
 import { migrate } from "../../scripts/migrate";
 import { seed } from "../../scripts/seed";
 import { db } from "../db";
-import { createEntrance, listEntrances, searchEntrances } from "./entrances";
+import {
+  createEntrance,
+  getEntrance,
+  listEntrances,
+  searchEntrances,
+} from "./entrances";
 
 // the same migrations and the same seed as the real database, on an empty one
 beforeAll(() => {
@@ -29,6 +34,17 @@ test("the seed brings the contract's 20 entrances back exactly as the fixture ha
 test("the search treats a quote as text, not as SQL", () => {
   expect(searchEntrances("Lipscani")).toHaveLength(3);
   expect(searchEntrances("x' OR 1=1 --")).toEqual([]);
+});
+
+test("one entrance by its id, and nothing for an id that is not there", () => {
+  const id = "2511ddfb-2828-46f5-b23c-39501d862310"; // a fixture
+  expect(getEntrance(id)).toMatchObject({
+    entranceName: "Sc. A",
+    id,
+    number: "41",
+    street: "Strada Lipscani",
+  });
+  expect(getEntrance(crypto.randomUUID())).toBeUndefined();
 });
 
 test("a new entrance is a valid contract Entrance, not surveyed yet", () => {
