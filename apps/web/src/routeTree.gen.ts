@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BuildingsRouteImport } from './routes/buildings'
+import { Route as MapRouteImport } from './routes/map'
 import { Route as AssignmentsIndexRouteImport } from './routes/assignments/index'
 import { Route as AssignmentsNewRouteImport } from './routes/assignments/new'
 import { Route as EntrancesIndexRouteImport } from './routes/entrances/index'
@@ -24,6 +25,11 @@ const IndexRoute = IndexRouteImport.update({
 const BuildingsRoute = BuildingsRouteImport.update({
   id: '/buildings',
   path: '/buildings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MapRoute = MapRouteImport.update({
+  id: '/map',
+  path: '/map',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AssignmentsIndexRoute = AssignmentsIndexRouteImport.update({
@@ -50,6 +56,7 @@ const EntrancesEntranceIdRoute = EntrancesEntranceIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/buildings': typeof BuildingsRoute
+  '/map': typeof MapRoute
   '/assignments/new': typeof AssignmentsNewRoute
   '/entrances/$entranceId': typeof EntrancesEntranceIdRoute
   '/assignments/': typeof AssignmentsIndexRoute
@@ -58,6 +65,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/buildings': typeof BuildingsRoute
+  '/map': typeof MapRoute
   '/assignments/new': typeof AssignmentsNewRoute
   '/entrances/$entranceId': typeof EntrancesEntranceIdRoute
   '/assignments': typeof AssignmentsIndexRoute
@@ -67,6 +75,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/buildings': typeof BuildingsRoute
+  '/map': typeof MapRoute
   '/assignments/new': typeof AssignmentsNewRoute
   '/entrances/$entranceId': typeof EntrancesEntranceIdRoute
   '/assignments/': typeof AssignmentsIndexRoute
@@ -77,6 +86,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/buildings'
+    | '/map'
     | '/assignments/new'
     | '/entrances/$entranceId'
     | '/assignments/'
@@ -85,6 +95,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/buildings'
+    | '/map'
     | '/assignments/new'
     | '/entrances/$entranceId'
     | '/assignments'
@@ -93,6 +104,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/buildings'
+    | '/map'
     | '/assignments/new'
     | '/entrances/$entranceId'
     | '/assignments/'
@@ -102,6 +114,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BuildingsRoute: typeof BuildingsRoute
+  MapRoute: typeof MapRoute
   AssignmentsNewRoute: typeof AssignmentsNewRoute
   EntrancesEntranceIdRoute: typeof EntrancesEntranceIdRoute
   AssignmentsIndexRoute: typeof AssignmentsIndexRoute
@@ -122,6 +135,13 @@ declare module '@tanstack/react-router' {
       path: '/buildings'
       fullPath: '/buildings'
       preLoaderRoute: typeof BuildingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/map': {
+      id: '/map'
+      path: '/map'
+      fullPath: '/map'
+      preLoaderRoute: typeof MapRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/assignments/': {
@@ -158,6 +178,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BuildingsRoute: BuildingsRoute,
+  MapRoute: MapRoute,
   AssignmentsNewRoute: AssignmentsNewRoute,
   EntrancesEntranceIdRoute: EntrancesEntranceIdRoute,
   AssignmentsIndexRoute: AssignmentsIndexRoute,
