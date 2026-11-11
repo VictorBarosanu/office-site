@@ -15,15 +15,15 @@ function MapPage() {
   const { data: entrances } = useSuspenseQuery(entrancesQuery);
   return (
     <>
-      <h1>Map</h1>
+      <h1 className="font-semibold text-3xl">Map</h1>
       <EntranceMap entrances={entrances} />
       {/* the legend: what a pin's colour means, and how many there are */}
-      <ul className="legend">
+      <ul className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
         {SurveyStatus.options.map((status) => (
-          <li key={status}>
+          <li className="flex items-center gap-2" key={status}>
             <span
               aria-hidden="true"
-              className="dot"
+              className="size-3 rounded-full"
               style={{ background: STATUS_COLOUR[status] }}
             />
             {status}:{" "}

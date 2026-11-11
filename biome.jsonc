@@ -2,12 +2,14 @@
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
   "extends": ["ultracite/biome/core"],
   "files": {
-    // copied from the contract's repository, written by drizzle-kit or by
-    // the router's plugin: never reformatted here
+    // copied from the contract's repository, written by drizzle-kit, by
+    // the router's plugin or by the shadcn CLI: never reformatted here
     "includes": [
       "!packages/contract",
       "!apps/server/drizzle",
-      "!apps/web/src/routeTree.gen.ts"
+      "!apps/web/src/routeTree.gen.ts",
+      "!apps/web/src/components/ui",
+      "!apps/web/src/lib/utils.ts"
     ]
   },
   "javascript": {

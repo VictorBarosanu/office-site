@@ -3,9 +3,53 @@ import { fieldErrors, NewEntrance } from "@office/shared";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { Building, Entrance } from "field-app-contract/contract";
 import { type FormEvent, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import {
+  NativeSelect,
+  NativeSelectOption,
+} from "@/components/ui/native-select";
 import { ApiError, postJson } from "./api";
 
 type Errors = Partial<Record<string, string[]>>;
+
+// the zod messages of one field, in the shape shadcn's FieldError reads
+const errorsOf = (messages: string[] | undefined) =>
+  messages?.map((message) => ({ message }));
+
+// a label, an input and its errors: five of the form's six fields
+function TextField({
+  errors,
+  id,
+  label,
+  onChange,
+  value,
+  ...rest
+}: {
+  errors: string[] | undefined;
+  id: string;
+  label: string;
+  onChange: (value: string) => void;
+  value: string;
+  inputMode?: "decimal";
+  placeholder?: string;
+}) {
+  return (
+    <Field data-invalid={errors !== undefined}>
+      <FieldLabel htmlFor={id}>{label}</FieldLabel>
+      <Input
+        aria-invalid={errors !== undefined}
+        id={id}
+        onChange={(e) => onChange(e.target.value)}
+        value={value}
+        {...rest}
+      />
+      <FieldError errors={errorsOf(errors)} />
+    </Field>
+  );
+}
 
 // "" must fail as a number: Number("") would be 0, a valid latitude
 const toNumber = (text: string) =>
@@ -54,64 +98,83 @@ export function EntranceForm({ buildings }: { buildings: Building[] }) {
   }
 
   return (
-    <form noValidate onSubmit={handleSubmit}>
-      <label>
-        Building
-        <select
-          onChange={(e) => setBuildingId(e.target.value)}
-          value={buildingId}
+    <Card>
+      <CardHeader>
+        <CardTitle>Add an entrance</CardTitle>
+      </CardHeader>
+      <CardContent>
+        {/* one column on a phone, two from 640px */}
+        <form
+          className="grid gap-4 sm:grid-cols-2"
+          noValidate
+          onSubmit={handleSubmit}
         >
-          <option value="">Pick a building…</option>
-          {buildings.map((building) => (
-            <option key={building.id} value={building.id}>
-              {building.label}
-            </option>
-          ))}
-        </select>
-      </label>
-      {errors.buildingId && <p className="error">{errors.buildingId[0]}</p>}
-      <label>
-        Street
-        <input onChange={(e) => setStreet(e.target.value)} value={street} />
-      </label>
-      {errors.street && <p className="error">{errors.street[0]}</p>}
-      <label>
-        Number
-        <input onChange={(e) => setNumber(e.target.value)} value={number} />
-      </label>
-      {errors.number && <p className="error">{errors.number[0]}</p>}
-      <label>
-        Entrance
-        <input
-          onChange={(e) => setEntranceName(e.target.value)}
-          placeholder="Sc. A"
-          value={entranceName}
-        />
-      </label>
-      {errors.entranceName && <p className="error">{errors.entranceName[0]}</p>}
-      <label>
-        Latitude
-        <input
-          inputMode="decimal"
-          onChange={(e) => setLat(e.target.value)}
-          placeholder="44.43128"
-          value={lat}
-        />
-      </label>
-      {errors.lat && <p className="error">{errors.lat[0]}</p>}
-      <label>
-        Longitude
-        <input
-          inputMode="decimal"
-          onChange={(e) => setLng(e.target.value)}
-          placeholder="26.10102"
-          value={lng}
-        />
-      </label>
-      {errors.lng && <p className="error">{errors.lng[0]}</p>}
-      <button disabled={create.isPending} type="submit">
-        Add the entrance
-      </button>
-    </form>
+          <Field data-invalid={errors.buildingId !== undefined}>
+            <FieldLabel htmlFor="buildingId">Building</FieldLabel>
+            <NativeSelect
+              aria-invalid={errors.buildingId !== undefined}
+              id="buildingId"
+              onChange={(e) => setBuildingId(e.target.value)}
+              value={buildingId}
+            >
+              <NativeSelectOption value="">Pick a building…</NativeSelectOption>
+              {buildings.map((building) => (
+                <NativeSelectOption key={building.id} value={building.id}>
+                  {building.label}
+                </NativeSelectOption>
+              ))}
+            </NativeSelect>
+            <FieldError errors={errorsOf(errors.buildingId)} />
+          </Field>
+          <TextField
+            errors={errors.street}
+            id="street"
+            label="Street"
+            onChange={setStreet}
+            value={street}
+          />
+          <TextField
+            errors={errors.number}
+            id="number"
+            label="Number"
+            onChange={setNumber}
+            value={number}
+          />
+          <TextField
+            errors={errors.entranceName}
+            id="entranceName"
+            label="Entrance"
+            onChange={setEntranceName}
+            placeholder="Sc. A"
+            value={entranceName}
+          />
+          <TextField
+            errors={errors.lat}
+            id="lat"
+            inputMode="decimal"
+            label="Latitude"
+            onChange={setLat}
+            placeholder="44.43128"
+            value={lat}
+          />
+          <TextField
+            errors={errors.lng}
+            id="lng"
+            inputMode="decimal"
+            label="Longitude"
+            onChange={setLng}
+            placeholder="26.10102"
+            value={lng}
+          />
+          <Button
+            className="sm:col-span-2 sm:justify-self-start"
+            disabled={create.isPending}
+            type="submit"
+          >
+            Add the entrance
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
   );
 }

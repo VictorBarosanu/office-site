@@ -61,7 +61,7 @@ export function EntranceMap({ entrances }: { entrances: Entrance[] }) {
   return (
     <section
       aria-label="Map of the entrances"
-      className="map"
+      className="h-[60vh] min-h-80 w-full overflow-hidden rounded-lg border"
       ref={container}
     />
   );
