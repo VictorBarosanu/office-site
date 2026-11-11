@@ -1,7 +1,13 @@
 // apps/web/src/queries.ts — every read from the server: a key for the cache, a function that fetches
 import { queryOptions } from "@tanstack/react-query";
 import { notFound } from "@tanstack/react-router";
-import type { Building, Entrance } from "field-app-contract/contract";
+import type {
+  Building,
+  Entrance,
+  Route,
+  RouteStop,
+  User,
+} from "field-app-contract/contract";
 import { API, getJson } from "./api";
 
 export const buildingsQuery = queryOptions({
@@ -26,3 +32,14 @@ export const entranceQuery = (id: string) =>
     },
     queryKey: ["entrances", id],
   });
+
+export const workersQuery = queryOptions({
+  queryFn: () => getJson<User[]>("/api/users?role=field"),
+  queryKey: ["users", "field"],
+});
+
+// the contract calls an assignment a Route; the router has routes of its own
+export const assignmentsQuery = queryOptions({
+  queryFn: () => getJson<(Route & { stops: RouteStop[] })[]>("/api/routes"),
+  queryKey: ["routes"],
+});

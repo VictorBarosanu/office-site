@@ -24,6 +24,7 @@ function Root() {
         </Link>
         <Link to="/entrances">Entrances</Link>
         <Link to="/buildings">Buildings</Link>
+        <Link to="/assignments">Assignments</Link>
       </nav>
       <main>
         <Outlet />

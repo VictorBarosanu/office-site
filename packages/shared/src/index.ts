@@ -4,6 +4,7 @@ import {
   EntranceFields,
   FreeText,
   Id,
+  Route,
 } from "field-app-contract/contract";
 import { z } from "zod";
 
@@ -23,6 +24,22 @@ export const NewEntrance = EntranceFields.pick({
   street: true,
 });
 export type NewEntrance = z.infer<typeof NewEntrance>;
+
+// an assignment: the office gives a field worker a day's entrances, in order;
+// the server adds the admin (there is no sign-in yet), the ids and the stops.
+// The contract's Route rules, with messages a person can act on.
+export const NewRoute = Route.pick({ date: true, name: true, workerId: true })
+  .extend({
+    date: z.iso.date("Pick a day"),
+    entranceIds: z.array(Id).min(1, "Pick at least one entrance"),
+    name: z.string().trim().min(1, "Name the assignment").max(100),
+    workerId: z.uuid("Pick a field worker"),
+  })
+  .refine((r) => new Set(r.entranceIds).size === r.entranceIds.length, {
+    message: "An entrance is in the list twice",
+    path: ["entranceIds"],
+  });
+export type NewRoute = z.infer<typeof NewRoute>;
 
 // not in the contract: the office's own visits, in the office's own table
 export const NewSurvey = z.object({

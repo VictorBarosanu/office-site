@@ -8,6 +8,13 @@
       "when": 1794351380360,
       "tag": "0000_the-contract",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1794410170366,
+      "tag": "0001_routes-and-users",
+      "breakpoints": true
     }
   ]
 }

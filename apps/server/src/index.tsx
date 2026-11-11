@@ -9,7 +9,9 @@ import { buildingsApi } from "./buildings";
 import { team } from "./data";
 import { entrancesApi } from "./entrances";
 import { etaPages } from "./eta-pages";
+import { routesApi } from "./routes";
 import { stringPages } from "./string-pages";
+import { usersApi } from "./users";
 import { Layout } from "./views/Layout";
 
 interface Env {
@@ -146,5 +148,8 @@ app.get("/boom", () => {
 
 app.route("/api/entrances", entrancesApi);
 app.route("/api/buildings", buildingsApi);
+
+app.route("/api/users", usersApi);
+app.route("/api/routes", routesApi);
 
 export default app;

@@ -2,7 +2,11 @@
 // biome-ignore-all assist/source/useSortedKeys: the order of the keys is the order of the columns
 
 import { integer, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
-import type { SurveyStatus } from "field-app-contract/contract";
+import type {
+  Role,
+  StopStatus,
+  SurveyStatus,
+} from "field-app-contract/contract";
 
 const now = () => new Date().toISOString();
 
@@ -59,4 +63,38 @@ export const surveys = sqliteTable("surveys", {
   surveyedOn: text().notNull(),
   surveyor: text().notNull(),
   notes: text(),
+});
+
+// the contract's User: the office's admins and the field workers
+export const users = sqliteTable("users", {
+  ...row,
+  role: text().$type<Role>().notNull(),
+  name: text().notNull(),
+  email: text().notNull().unique(),
+});
+
+// the contract's Route: an admin gives a field worker a day's entrances
+export const routes = sqliteTable("routes", {
+  ...row,
+  adminId: text()
+    .notNull()
+    .references(() => users.id),
+  workerId: text()
+    .notNull()
+    .references(() => users.id),
+  date: text().notNull(),
+  name: text().notNull(),
+});
+
+// the contract's RouteStop: one entrance of a route, in the order to visit it
+export const routeStops = sqliteTable("route_stops", {
+  ...row,
+  routeId: text()
+    .notNull()
+    .references(() => routes.id, { onDelete: "cascade" }),
+  entranceId: text()
+    .notNull()
+    .references(() => entrances.id),
+  order: integer().notNull(),
+  status: text().$type<StopStatus>().notNull().default("todo"),
 });

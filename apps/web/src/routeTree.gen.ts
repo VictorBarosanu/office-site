@@ -11,6 +11,8 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BuildingsRouteImport } from './routes/buildings'
+import { Route as AssignmentsIndexRouteImport } from './routes/assignments/index'
+import { Route as AssignmentsNewRouteImport } from './routes/assignments/new'
 import { Route as EntrancesIndexRouteImport } from './routes/entrances/index'
 import { Route as EntrancesEntranceIdRouteImport } from './routes/entrances/$entranceId'
 
@@ -22,6 +24,16 @@ const IndexRoute = IndexRouteImport.update({
 const BuildingsRoute = BuildingsRouteImport.update({
   id: '/buildings',
   path: '/buildings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AssignmentsIndexRoute = AssignmentsIndexRouteImport.update({
+  id: '/assignments/',
+  path: '/assignments/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AssignmentsNewRoute = AssignmentsNewRouteImport.update({
+  id: '/assignments/new',
+  path: '/assignments/new',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EntrancesIndexRoute = EntrancesIndexRouteImport.update({
@@ -38,34 +50,61 @@ const EntrancesEntranceIdRoute = EntrancesEntranceIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/buildings': typeof BuildingsRoute
+  '/assignments/new': typeof AssignmentsNewRoute
   '/entrances/$entranceId': typeof EntrancesEntranceIdRoute
+  '/assignments/': typeof AssignmentsIndexRoute
   '/entrances/': typeof EntrancesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/buildings': typeof BuildingsRoute
+  '/assignments/new': typeof AssignmentsNewRoute
   '/entrances/$entranceId': typeof EntrancesEntranceIdRoute
+  '/assignments': typeof AssignmentsIndexRoute
   '/entrances': typeof EntrancesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/buildings': typeof BuildingsRoute
+  '/assignments/new': typeof AssignmentsNewRoute
   '/entrances/$entranceId': typeof EntrancesEntranceIdRoute
+  '/assignments/': typeof AssignmentsIndexRoute
   '/entrances/': typeof EntrancesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/buildings' | '/entrances/$entranceId' | '/entrances/'
+  fullPaths:
+    | '/'
+    | '/buildings'
+    | '/assignments/new'
+    | '/entrances/$entranceId'
+    | '/assignments/'
+    | '/entrances/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/buildings' | '/entrances/$entranceId' | '/entrances'
-  id: '__root__' | '/' | '/buildings' | '/entrances/$entranceId' | '/entrances/'
+  to:
+    | '/'
+    | '/buildings'
+    | '/assignments/new'
+    | '/entrances/$entranceId'
+    | '/assignments'
+    | '/entrances'
+  id:
+    | '__root__'
+    | '/'
+    | '/buildings'
+    | '/assignments/new'
+    | '/entrances/$entranceId'
+    | '/assignments/'
+    | '/entrances/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BuildingsRoute: typeof BuildingsRoute
+  AssignmentsNewRoute: typeof AssignmentsNewRoute
   EntrancesEntranceIdRoute: typeof EntrancesEntranceIdRoute
+  AssignmentsIndexRoute: typeof AssignmentsIndexRoute
   EntrancesIndexRoute: typeof EntrancesIndexRoute
 }
 
@@ -83,6 +122,20 @@ declare module '@tanstack/react-router' {
       path: '/buildings'
       fullPath: '/buildings'
       preLoaderRoute: typeof BuildingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/assignments/': {
+      id: '/assignments/'
+      path: '/assignments'
+      fullPath: '/assignments/'
+      preLoaderRoute: typeof AssignmentsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/assignments/new': {
+      id: '/assignments/new'
+      path: '/assignments/new'
+      fullPath: '/assignments/new'
+      preLoaderRoute: typeof AssignmentsNewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/entrances/': {
@@ -105,7 +158,9 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BuildingsRoute: BuildingsRoute,
+  AssignmentsNewRoute: AssignmentsNewRoute,
   EntrancesEntranceIdRoute: EntrancesEntranceIdRoute,
+  AssignmentsIndexRoute: AssignmentsIndexRoute,
   EntrancesIndexRoute: EntrancesIndexRoute,
 }
 export const routeTree = rootRouteImport
