@@ -1,32 +1,27 @@
 // apps/web/src/routes/entrances/index.tsx — the page at /entrances
-import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
-import type { Building, Entrance } from "field-app-contract/contract";
-import { getJson } from "../../api";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { EntranceForm } from "../../EntranceForm";
+import { buildingsQuery, entrancesQuery } from "../../queries";
 
 export const Route = createFileRoute("/entrances/")({
   component: Entrances,
   // both lists at once: the form needs the buildings, the list the entrances
-  loader: async () => {
-    const [entrances, buildings] = await Promise.all([
-      getJson<Entrance[]>("/api/entrances"),
-      getJson<Building[]>("/api/buildings"),
-    ]);
-    return { buildings, entrances };
-  },
+  loader: ({ context }) =>
+    Promise.all([
+      context.queryClient.query({ ...entrancesQuery, staleTime: "static" }),
+      context.queryClient.query({ ...buildingsQuery, staleTime: "static" }),
+    ]),
 });
 
 function Entrances() {
-  const { buildings, entrances } = Route.useLoaderData();
-  const router = useRouter();
+  const { data: entrances } = useSuspenseQuery(entrancesQuery);
+  const { data: buildings } = useSuspenseQuery(buildingsQuery);
   return (
     <>
       <h1>Entrances</h1>
-      {/* a new entrance: run the loader again, the list comes back with it */}
-      <EntranceForm
-        buildings={buildings}
-        onCreated={() => router.invalidate()}
-      />
+      {/* the form invalidates ["entrances"]: this list refetches by itself */}
+      <EntranceForm buildings={buildings} />
       <ul>
         {entrances.map((entrance) => (
           <li key={entrance.id}>

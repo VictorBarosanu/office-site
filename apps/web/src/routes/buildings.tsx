@@ -1,16 +1,18 @@
 // apps/web/src/routes/buildings.tsx — the page at /buildings
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import type { Building } from "field-app-contract/contract";
-import { getJson } from "../api";
+import { buildingsQuery } from "../queries";
 
 export const Route = createFileRoute("/buildings")({
   component: Buildings,
-  // the router fetches before it draws the page: no empty first render
-  loader: () => getJson<Building[]>("/api/buildings"),
+  // from the cache when it is there, from the server when it is not
+  loader: ({ context }) =>
+    context.queryClient.query({ ...buildingsQuery, staleTime: "static" }),
 });
 
 function Buildings() {
-  const buildings = Route.useLoaderData();
+  // the same key: the data the loader put in the cache, kept up to date
+  const { data: buildings } = useSuspenseQuery(buildingsQuery);
   return (
     <>
       <h1>Buildings</h1>

@@ -1,18 +1,16 @@
 // apps/web/src/routes/entrances/$entranceId.tsx — the page at /entrances/<an id>
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import type { Entrance } from "field-app-contract/contract";
-import { API } from "../../api";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { entranceQuery } from "../../queries";
 
 export const Route = createFileRoute("/entrances/$entranceId")({
   component: EntrancePage,
   // params.entranceId is the part of the URL the file name calls $entranceId
-  loader: async ({ params }) => {
-    const res = await fetch(`${API}/api/entrances/${params.entranceId}`);
-    if (res.status === 404) {
-      throw notFound();
-    }
-    return (await res.json()) as Entrance;
-  },
+  loader: ({ context, params }) =>
+    context.queryClient.query({
+      ...entranceQuery(params.entranceId),
+      staleTime: "static",
+    }),
   notFoundComponent: () => (
     <p>
       No such entrance. <Link to="/entrances">All entrances</Link>
@@ -21,7 +19,8 @@ export const Route = createFileRoute("/entrances/$entranceId")({
 });
 
 function EntrancePage() {
-  const entrance = Route.useLoaderData();
+  const { entranceId } = Route.useParams();
+  const { data: entrance } = useSuspenseQuery(entranceQuery(entranceId));
   return (
     <>
       <h1>
