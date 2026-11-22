@@ -10,27 +10,36 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { EntranceForm } from "../../EntranceForm";
-import { buildingsQuery, entrancesQuery } from "../../queries";
+import { Pager, pageSearch } from "../../Pager";
+import { allBuildingsQuery, entrancesQuery } from "../../queries";
 import { StatusBadge } from "../../StatusBadge";
 
+// biome-ignore assist/source/useSortedKeys: the router infers each option from the ones above it
 export const Route = createFileRoute("/entrances/")({
-  component: Entrances,
-  // both lists at once: the form needs the buildings, the list the entrances
-  loader: ({ context }) =>
+  validateSearch: pageSearch,
+  loaderDeps: ({ search }) => ({ offset: search.offset }),
+  // both at once: a page of entrances, and every building for the form
+  loader: ({ context, deps }) =>
     Promise.all([
-      context.queryClient.query({ ...entrancesQuery, staleTime: "static" }),
-      context.queryClient.query({ ...buildingsQuery, staleTime: "static" }),
+      context.queryClient.query({
+        ...entrancesQuery(deps.offset),
+        staleTime: "static",
+      }),
+      context.queryClient.query({ ...allBuildingsQuery, staleTime: "static" }),
     ]),
+  component: Entrances,
 });
 
 function Entrances() {
-  const { data: entrances } = useSuspenseQuery(entrancesQuery);
-  const { data: buildings } = useSuspenseQuery(buildingsQuery);
+  const { offset } = Route.useSearch();
+  const { data: page } = useSuspenseQuery(entrancesQuery(offset));
+  const { data: buildings } = useSuspenseQuery(allBuildingsQuery);
+  const entrances = page.items;
   return (
     <>
       <h1 className="font-semibold text-3xl">Entrances</h1>
       {/* the form invalidates ["entrances"]: this list refetches by itself */}
-      <EntranceForm buildings={buildings} />
+      <EntranceForm buildings={buildings.items} />
       <Table>
         <TableHeader>
           <TableRow>
@@ -53,7 +62,10 @@ function Entrances() {
                 </Link>
               </TableCell>
               <TableCell className="hidden sm:table-cell">
-                {buildings.find((b) => b.id === entrance.buildingId)?.label}
+                {
+                  buildings.items.find((b) => b.id === entrance.buildingId)
+                    ?.label
+                }
               </TableCell>
               <TableCell>
                 <StatusBadge status={entrance.surveyStatus} />
@@ -62,6 +74,7 @@ function Entrances() {
           ))}
         </TableBody>
       </Table>
+      <Pager {...page} />
     </>
   );
 }

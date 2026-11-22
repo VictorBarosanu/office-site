@@ -12,7 +12,8 @@ export async function getJson<T>(path: string): Promise<T> {
   return res.json();
 }
 
-// a 400 from the server carries { errors: { field: [messages] } }: keep them
+// every error is a problem+json: detail says what went wrong; a 400 also has
+// errors: { field: [messages] }, the messages the form shows beside each field
 export class ApiError extends Error {
   readonly errors: Partial<Record<string, string[]>>;
   constructor(message: string, errors: Partial<Record<string, string[]>>) {
@@ -29,7 +30,10 @@ export async function postJson<T>(path: string, body: unknown): Promise<T> {
   });
   const data = await res.json();
   if (!res.ok) {
-    throw new ApiError(`POST ${path}: ${res.status}`, data.errors ?? {});
+    throw new ApiError(
+      data.detail ?? `POST ${path}: ${res.status}`,
+      data.errors ?? {}
+    );
   }
   return data;
 }

@@ -23,14 +23,14 @@ import {
   NativeSelectOption,
 } from "@/components/ui/native-select";
 import { ApiError, postJson } from "../../api";
-import { entrancesQuery, workersQuery } from "../../queries";
+import { allEntrancesQuery, workersQuery } from "../../queries";
 
 export const Route = createFileRoute("/assignments/new")({
   component: NewAssignment,
   loader: ({ context }) =>
     Promise.all([
       context.queryClient.query({ ...workersQuery, staleTime: "static" }),
-      context.queryClient.query({ ...entrancesQuery, staleTime: "static" }),
+      context.queryClient.query({ ...allEntrancesQuery, staleTime: "static" }),
     ]),
 });
 
@@ -44,7 +44,8 @@ const invalid = (meta: Meta) => shown(meta).length > 0;
 
 function NewAssignment() {
   const { data: workers } = useSuspenseQuery(workersQuery);
-  const { data: entrances } = useSuspenseQuery(entrancesQuery);
+  const { data } = useSuspenseQuery(allEntrancesQuery);
+  const entrances = data.items;
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const create = useMutation({

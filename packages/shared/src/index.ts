@@ -51,6 +51,20 @@ export const NewSurvey = z.object({
 export type NewSurvey = z.infer<typeof NewSurvey>;
 export type Survey = NewSurvey & { id: string };
 
+export const PageQuery = z.object({
+  limit: z.coerce.number().int().min(1).max(100).default(10),
+  offset: z.coerce.number().int().min(0).default(0),
+});
+export type PageQuery = z.infer<typeof PageQuery>;
+
+// every list the API answers with: one page of items, and how many there are
+export interface Page<T> {
+  items: T[];
+  limit: number;
+  offset: number;
+  total: number;
+}
+
 // { street?: string[], lat?: string[], … } — the shape both sides show
 export function fieldErrors(error: z.ZodError) {
   return z.flattenError(error).fieldErrors;

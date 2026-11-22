@@ -3,16 +3,18 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { SurveyStatus } from "field-app-contract/contract";
 import { EntranceMap, STATUS_COLOUR } from "../EntranceMap";
-import { entrancesQuery } from "../queries";
+import { allEntrancesQuery } from "../queries";
 
 export const Route = createFileRoute("/map")({
   component: MapPage,
   loader: ({ context }) =>
-    context.queryClient.query({ ...entrancesQuery, staleTime: "static" }),
+    context.queryClient.query({ ...allEntrancesQuery, staleTime: "static" }),
 });
 
 function MapPage() {
-  const { data: entrances } = useSuspenseQuery(entrancesQuery);
+  const { data } = useSuspenseQuery(allEntrancesQuery);
+  const entrances = data.items;
+
   return (
     <>
       <h1 className="font-semibold text-3xl">Map</h1>

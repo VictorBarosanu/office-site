@@ -1,4 +1,5 @@
 // apps/web/src/queries.ts — every read from the server: a key for the cache, a function that fetches
+import type { Page } from "@office/shared";
 import { queryOptions } from "@tanstack/react-query";
 import { notFound } from "@tanstack/react-router";
 import type {
@@ -10,15 +11,25 @@ import type {
 } from "field-app-contract/contract";
 import { API, getJson } from "./api";
 
-export const buildingsQuery = queryOptions({
-  queryFn: () => getJson<Building[]>("/api/buildings"),
-  queryKey: ["buildings"],
-});
+// one page of a list: the page is part of the key, so each page has its own cache entry
+export const buildingsQuery = (offset = 0, limit = 10) =>
+  queryOptions({
+    queryFn: () =>
+      getJson<Page<Building>>(`/api/buildings?limit=${limit}&offset=${offset}`),
+    queryKey: ["buildings", { limit, offset }],
+  });
 
-export const entrancesQuery = queryOptions({
-  queryFn: () => getJson<Entrance[]>("/api/entrances"),
-  queryKey: ["entrances"],
-});
+export const entrancesQuery = (offset = 0, limit = 10) =>
+  queryOptions({
+    queryFn: () =>
+      getJson<Page<Entrance>>(`/api/entrances?limit=${limit}&offset=${offset}`),
+    queryKey: ["entrances", { limit, offset }],
+  });
+
+// shortcut: the map and the forms need every row and the seed is far below 100;
+// past 100 they would page too (the course's slide on cursors is the upgrade)
+export const allBuildingsQuery = buildingsQuery(0, 100);
+export const allEntrancesQuery = entrancesQuery(0, 100);
 
 // ["entrances", id] sits under ["entrances"]: invalidating the list reaches it too
 export const entranceQuery = (id: string) =>

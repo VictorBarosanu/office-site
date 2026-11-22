@@ -1,12 +1,21 @@
 // apps/server/src/db/buildings.ts — the queries for buildings; routes call these functions
-import type { NewBuilding } from "@office/shared";
-import { asc, eq } from "drizzle-orm";
+import type { NewBuilding, Page, PageQuery } from "@office/shared";
+import { asc, count, eq } from "drizzle-orm";
 import type { Building } from "field-app-contract/contract";
 import { db } from "../db";
 import { buildings } from "./schema";
 
-export function listBuildings(): Building[] {
-  return db.select().from(buildings).orderBy(asc(buildings.label)).all();
+// one page; the id breaks ties, so two pages never share a row
+export function listBuildings({ limit, offset }: PageQuery): Page<Building> {
+  const items = db
+    .select()
+    .from(buildings)
+    .orderBy(asc(buildings.label), asc(buildings.id))
+    .limit(limit)
+    .offset(offset)
+    .all();
+  const total = db.select({ n: count() }).from(buildings).get()?.n ?? 0;
+  return { items, limit, offset, total };
 }
 
 export function createBuilding(building: NewBuilding): Building {

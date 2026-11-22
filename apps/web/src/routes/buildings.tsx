@@ -7,18 +7,28 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Pager, pageSearch } from "../Pager";
 import { buildingsQuery } from "../queries";
 
+// biome-ignore assist/source/useSortedKeys: the router infers each option from the ones above it
 export const Route = createFileRoute("/buildings")({
-  component: Buildings,
+  validateSearch: pageSearch,
+  // the loader runs again whenever offset changes
+  loaderDeps: ({ search }) => ({ offset: search.offset }),
   // from the cache when it is there, from the server when it is not
-  loader: ({ context }) =>
-    context.queryClient.query({ ...buildingsQuery, staleTime: "static" }),
+  loader: ({ context, deps }) =>
+    context.queryClient.query({
+      ...buildingsQuery(deps.offset),
+      staleTime: "static",
+    }),
+  component: Buildings,
 });
 
 function Buildings() {
+  const { offset } = Route.useSearch();
   // the same key: the data the loader put in the cache, kept up to date
-  const { data: buildings } = useSuspenseQuery(buildingsQuery);
+  const { data: page } = useSuspenseQuery(buildingsQuery(offset));
+  const buildings = page.items;
   return (
     <>
       <h1 className="font-semibold text-3xl">Buildings</h1>
@@ -37,6 +47,7 @@ function Buildings() {
           </li>
         ))}
       </ul>
+      <Pager {...page} />
     </>
   );
 }

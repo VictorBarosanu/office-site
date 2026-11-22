@@ -5,12 +5,9 @@ import entranceRows from "field-app-contract/fixtures/entrances.json";
 import { migrate } from "../../scripts/migrate";
 import { seed } from "../../scripts/seed";
 import { db } from "../db";
-import {
-  createEntrance,
-  getEntrance,
-  listEntrances,
-  searchEntrances,
-} from "./entrances";
+import { createEntrance, getEntrance, listEntrances } from "./entrances";
+
+const ALL = { limit: 100, offset: 0 };
 
 // the same migrations and the same seed as the real database, on an empty one
 beforeAll(() => {
@@ -25,15 +22,15 @@ beforeAll(() => {
 });
 
 test("the seed brings the contract's 20 entrances back exactly as the fixture has them", () => {
-  const listed = listEntrances();
+  const listed = listEntrances(ALL).items;
   expect(listed).toHaveLength(20);
   // every column survives the trip: UUIDs, 0/1 → booleans, nulls, timestamps
   expect(listed).toEqual(expect.arrayContaining(entranceRows));
 });
 
 test("the search treats a quote as text, not as SQL", () => {
-  expect(searchEntrances("Lipscani")).toHaveLength(3);
-  expect(searchEntrances("x' OR 1=1 --")).toEqual([]);
+  expect(listEntrances(ALL, "Lipscani").items).toHaveLength(3);
+  expect(listEntrances(ALL, "x' OR 1=1 --").items).toEqual([]);
 });
 
 test("one entrance by its id, and nothing for an id that is not there", () => {
@@ -59,5 +56,5 @@ test("a new entrance is a valid contract Entrance, not surveyed yet", () => {
   // the schema made the id and the timestamps; the contract accepts the row
   expect(Entrance.parse(created)).toEqual(created);
   expect(created.surveyStatus).toBe("not_started");
-  expect(listEntrances()).toHaveLength(21);
+  expect(listEntrances(ALL).total).toBe(21);
 });

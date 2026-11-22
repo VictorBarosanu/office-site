@@ -3,6 +3,7 @@ import { fieldErrors, NewRoute } from "@office/shared";
 import { Hono } from "hono";
 import { isForeignKeyError } from "./db/errors";
 import { createRoute, listRoutes } from "./db/routes";
+import { problem } from "./problem";
 
 export const routesApi = new Hono();
 
@@ -11,17 +12,18 @@ routesApi.get("/", (c) => c.json(listRoutes()));
 routesApi.post("/", async (c) => {
   const result = NewRoute.safeParse(await c.req.json().catch(() => null));
   if (!result.success) {
-    return c.json({ errors: fieldErrors(result.error) }, 400);
+    return problem(c, 400, "The route is not valid", {
+      errors: fieldErrors(result.error),
+    });
   }
   try {
     return c.json(createRoute(result.data), 201);
   } catch (error) {
     // an unknown worker or entrance: the foreign keys refuse the whole route
     if (isForeignKeyError(error)) {
-      return c.json(
-        { errors: { entranceIds: ["No such worker or entrance"] } },
-        400
-      );
+      return problem(c, 400, "The route is not valid", {
+        errors: { entranceIds: ["No such worker or entrance"] },
+      });
     }
     throw error;
   }

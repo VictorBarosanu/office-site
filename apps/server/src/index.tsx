@@ -9,8 +9,10 @@ import { buildingsApi } from "./buildings";
 import { team } from "./data";
 import { entrancesApi } from "./entrances";
 import { etaPages } from "./eta-pages";
+import { problem } from "./problem";
 import { routesApi } from "./routes";
 import { stringPages } from "./string-pages";
+import { surveysApi } from "./surveys";
 import { usersApi } from "./users";
 import { Layout } from "./views/Layout";
 
@@ -49,7 +51,7 @@ app.get("/team", (c) =>
       <h1>Team</h1>
       <ul>
         {team.map((member) => (
-          <li>{member}</li>
+          <li key={member}>{member}</li>
         ))}
       </ul>
     </Layout>
@@ -99,7 +101,7 @@ app.get("/files", async (c) => {
       <h1>public/</h1>
       <ul>
         {files.map((file) => (
-          <li>
+          <li key={file.name}>
             <a href={`/${file.name}`}>{file.name}</a> — {file.size} bytes
           </li>
         ))}
@@ -119,20 +121,31 @@ app.get("/about", (c) =>
   )
 );
 
+// under /api/ a problem+json; everywhere else the HTML page
 app.notFound((c) =>
-  c.html(
-    <Layout title="Not found">
-      <h1>404 — nothing here</h1>
-      <p>
-        No page at <code>{c.req.path}</code>. <a href="/">Back home</a>
-      </p>
-    </Layout>,
-    404
-  )
+  c.req.path.startsWith("/api/")
+    ? problem(c, 404, `No route at ${c.req.method} ${c.req.path}`)
+    : c.html(
+        <Layout title="Not found">
+          <h1>404 — nothing here</h1>
+          <p>
+            No page at <code>{c.req.path}</code>. <a href="/">Back home</a>
+          </p>
+        </Layout>,
+        404
+      )
 );
 
 app.onError((err, c) => {
   console.error(`[${c.get("requestId")}]`, err.message);
+  // the client gets the request id, never the error's message
+  if (c.req.path.startsWith("/api/")) {
+    return problem(
+      c,
+      500,
+      `Request ${c.get("requestId")} failed. It has been logged.`
+    );
+  }
   return c.html(
     <Layout title="Error">
       <h1>Something broke</h1>
@@ -151,5 +164,7 @@ app.route("/api/buildings", buildingsApi);
 
 app.route("/api/users", usersApi);
 app.route("/api/routes", routesApi);
+
+app.route("/api/surveys", surveysApi);
 
 export default app;
