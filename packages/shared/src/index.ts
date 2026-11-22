@@ -5,6 +5,7 @@ import {
   FreeText,
   Id,
   Route,
+  RouteStop,
 } from "field-app-contract/contract";
 import { z } from "zod";
 
@@ -41,6 +42,9 @@ export const NewRoute = Route.pick({ date: true, name: true, workerId: true })
   });
 export type NewRoute = z.infer<typeof NewRoute>;
 
+// a route as the API sends it: the row and its stops, in order
+export const RouteWithStops = Route.extend({ stops: z.array(RouteStop) });
+
 // not in the contract: the office's own visits, in the office's own table
 export const NewSurvey = z.object({
   entranceId: Id,
@@ -49,8 +53,10 @@ export const NewSurvey = z.object({
   surveyor: z.string().trim().min(1, "Surveyor is required"),
 });
 export type NewSurvey = z.infer<typeof NewSurvey>;
-export type Survey = NewSurvey & { id: string };
+export const Survey = NewSurvey.extend({ id: Id });
+export type Survey = z.infer<typeof Survey>;
 
+// ?limit=10&offset=40: the query string's text, as numbers, with the defaults
 export const PageQuery = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(10),
   offset: z.coerce.number().int().min(0).default(0),
@@ -58,12 +64,30 @@ export const PageQuery = z.object({
 export type PageQuery = z.infer<typeof PageQuery>;
 
 // every list the API answers with: one page of items, and how many there are
+export const pageOf = <T extends z.ZodType>(item: T) =>
+  z.object({
+    items: z.array(item),
+    limit: z.number().int(),
+    offset: z.number().int(),
+    total: z.number().int(),
+  });
 export interface Page<T> {
   items: T[];
   limit: number;
   offset: number;
   total: number;
 }
+
+// every 4xx and 5xx (RFC 9457 problem details); errors only on a 400
+export const Problem = z.object({
+  detail: z.string(),
+  errors: z.record(z.string(), z.array(z.string())).optional(),
+  instance: z.string(),
+  status: z.number().int(),
+  title: z.string(),
+  type: z.string(),
+});
+export type Problem = z.infer<typeof Problem>;
 
 // { street?: string[], lat?: string[], … } — the shape both sides show
 export function fieldErrors(error: z.ZodError) {

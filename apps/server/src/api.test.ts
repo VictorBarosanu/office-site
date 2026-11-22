@@ -99,3 +99,36 @@ test("the defaults are limit 10, offset 0; a bad limit is a 400", async () => {
   expect(bad.status).toBe(400);
   expect(((await bad.json()) as Problem).errors?.limit).toBeArray();
 });
+
+test("the OpenAPI document describes every API path", async () => {
+  const res = await app.request("/api/openapi.json");
+  expect(res.status).toBe(200);
+  const doc = (await res.json()) as {
+    openapi: string;
+    paths: Record<string, Record<string, unknown>>;
+  };
+  expect(doc.openapi).toStartWith("3.");
+  expect(Object.keys(doc.paths).sort()).toEqual([
+    "/api/buildings",
+    "/api/buildings/{id}",
+    "/api/entrances",
+    "/api/entrances/{id}",
+    "/api/routes",
+    "/api/surveys",
+    "/api/users",
+  ]);
+  expect(doc.paths["/api/buildings"]).toContainAllKeys(["get", "post"]);
+});
+
+test("the document says what the code does: a page is 10 items by default", async () => {
+  const doc = await (await app.request("/api/openapi.json")).text();
+  expect(doc).toContain('"default":10');
+  expect(doc).not.toContain('"default":20');
+});
+
+test("the docs page is an HTML page that reads the document", async () => {
+  const res = await app.request("/api/docs");
+  expect(res.status).toBe(200);
+  expect(res.headers.get("content-type")).toStartWith("text/html");
+  expect(await res.text()).toContain("/api/openapi.json");
+});
