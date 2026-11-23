@@ -24,7 +24,7 @@ beforeAll(() => {
     throw new Error(`Refusing to test on ${db.$client.filename}`);
   }
   migrate();
-  seed();
+  seed("test-only-password");
 });
 
 test("a 404 is a problem+json: type, title, status, detail, instance", async () => {
@@ -109,6 +109,8 @@ test("the OpenAPI document describes every API path", async () => {
   };
   expect(doc.openapi).toStartWith("3.");
   expect(Object.keys(doc.paths).sort()).toEqual([
+    "/api/auth/me",
+    "/api/auth/sign-in",
     "/api/buildings",
     "/api/buildings/search",
     "/api/buildings/{id}",

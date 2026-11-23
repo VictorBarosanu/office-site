@@ -98,3 +98,23 @@ export const routeStops = sqliteTable("route_stops", {
   order: integer().notNull(),
   status: text().$type<StopStatus>().notNull().default("todo"),
 });
+
+// Better Auth's account table, the names we'll keep: a password is a "credential"
+// account, its accountId the user's id; timestamps as Better Auth stores them in SQLite
+export const account = sqliteTable("account", {
+  id: row.id,
+  userId: text()
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  accountId: text().notNull(),
+  providerId: text().notNull(),
+  // the Bun.password hash (argon2id), never the password
+  password: text(),
+  createdAt: integer({ mode: "timestamp_ms" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+  updatedAt: integer({ mode: "timestamp_ms" })
+    .notNull()
+    .$defaultFn(() => new Date())
+    .$onUpdateFn(() => new Date()),
+});

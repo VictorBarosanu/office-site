@@ -18,7 +18,7 @@ beforeAll(() => {
     );
   }
   migrate();
-  seed();
+  seed("test-only-password");
 });
 
 test("the seed brings the contract's 20 entrances back exactly as the fixture has them", () => {

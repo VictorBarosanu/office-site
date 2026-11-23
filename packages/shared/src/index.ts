@@ -6,6 +6,7 @@ import {
   Id,
   Route,
   RouteStop,
+  User,
 } from "field-app-contract/contract";
 import { z } from "zod";
 
@@ -55,6 +56,17 @@ export const NewSurvey = z.object({
 export type NewSurvey = z.infer<typeof NewSurvey>;
 export const Survey = NewSurvey.extend({ id: Id });
 export type Survey = z.infer<typeof Survey>;
+
+// what the sign-in form sends
+export const SignIn = z.object({
+  // trimmed and lowercased first: "Irina.Matei@Example.com " is the same address
+  email: z.string().trim().toLowerCase().pipe(z.email("Type your email")),
+  password: z.string().min(1, "Type your password"),
+});
+export type SignIn = z.infer<typeof SignIn>;
+
+// what sign-in answers while the token travels in the body (step 5 moves it to a cookie)
+export const SignInAnswer = z.object({ token: z.string(), user: User });
 
 // ?limit=10&offset=40: the query string's text, as numbers, with the defaults
 export const PageQuery = z.object({

@@ -14,7 +14,7 @@ beforeAll(() => {
     throw new Error(`Refusing to test on ${db.$client.filename}`);
   }
   migrate();
-  seed();
+  seed("test-only-password");
 });
 
 test("the seed brings the contract's 2 routes back with their stops in order", () => {
