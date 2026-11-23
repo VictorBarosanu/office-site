@@ -7,6 +7,7 @@ import { db } from "../db";
 import { createRoute, listRoutes } from "./routes";
 
 const ANDREI = "26bc4094-d586-4223-9561-ef242d835677"; // a field worker, a fixture
+const IRINA = "7d07e973-eebc-44b1-b7cd-bd1cd2fff3c5"; // the admin, a fixture
 const LIPSCANI_A = "2511ddfb-2828-46f5-b23c-39501d862310"; // an entrance, a fixture
 
 beforeAll(() => {
@@ -29,15 +30,16 @@ test("the seed brings the contract's 2 routes back with their stops in order", (
 });
 
 test("a new route is assigned by the admin, its stops numbered from 1", () => {
-  const created = createRoute({
-    date: "2026-11-12",
-    entranceIds: [LIPSCANI_A],
-    name: "Test route",
-    workerId: ANDREI,
-  });
-  expect(Route.parse(created).adminId).toBe(
-    "7d07e973-eebc-44b1-b7cd-bd1cd2fff3c5"
+  const created = createRoute(
+    {
+      date: "2026-11-12",
+      entranceIds: [LIPSCANI_A],
+      name: "Test route",
+      workerId: ANDREI,
+    },
+    IRINA
   );
+  expect(Route.parse(created).adminId).toBe(IRINA);
   expect(created.stops).toHaveLength(1);
   expect(RouteStop.parse(created.stops[0])).toMatchObject({
     entranceId: LIPSCANI_A,
@@ -49,12 +51,15 @@ test("a new route is assigned by the admin, its stops numbered from 1", () => {
 test("an unknown entrance refuses the whole route, stops and all", () => {
   const before = listRoutes().length;
   expect(() =>
-    createRoute({
-      date: "2026-11-12",
-      entranceIds: [LIPSCANI_A, crypto.randomUUID()],
-      name: "Half a route",
-      workerId: ANDREI,
-    })
+    createRoute(
+      {
+        date: "2026-11-12",
+        entranceIds: [LIPSCANI_A, crypto.randomUUID()],
+        name: "Half a route",
+        workerId: ANDREI,
+      },
+      IRINA
+    )
   ).toThrow();
   expect(listRoutes()).toHaveLength(before);
 });

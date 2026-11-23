@@ -10,6 +10,7 @@ import {
   listEntrances,
 } from "./db/entrances";
 import { isForeignKeyError } from "./db/errors";
+import { requireRole, requireUser, type SignedIn } from "./guards";
 import {
   json,
   jsonBody,
@@ -19,7 +20,10 @@ import {
 } from "./openapi";
 import { problem } from "./problem";
 
-export const entrancesApi = new Hono();
+export const entrancesApi = new Hono<SignedIn>();
+
+// every route below: signed-in users only (401 otherwise)
+entrancesApi.use(requireUser);
 
 // GET /api/entrances?q=unirii&limit=10&offset=0: one page of the matches
 entrancesApi.get(
@@ -71,6 +75,7 @@ entrancesApi.get(
 
 entrancesApi.post(
   "/",
+  requireRole("admin"),
   describeRoute({
     requestBody: jsonBody(NewEntrance),
     responses: {
@@ -103,6 +108,7 @@ entrancesApi.post(
 
 entrancesApi.delete(
   "/:id",
+  requireRole("admin"),
   describeRoute({
     responses: {
       204: { description: "Deleted" },

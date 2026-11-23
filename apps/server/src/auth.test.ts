@@ -4,32 +4,12 @@ import { migrate } from "../scripts/migrate";
 import { seed } from "../scripts/seed";
 import { db } from "./db";
 import app from "./index";
+import { cookieOf, IRINA, PASSWORD, signIn } from "./testing";
 
-const PASSWORD = "test-only-password"; // the seed's, for this :memory: database only
-const IRINA = "irina.matei@example.com"; // the admin, a fixture
 // session=<32 random bytes, base64url>; then the attributes
 const SESSION_COOKIE = /^session=[\w-]{43}; /;
 
-// app.request() has no Bun server behind it: this stands in for the one that knows the IP
-const server = { requestIP: () => ({ address: "127.0.0.1" }) };
-
-const signIn = (email: string, password: string) =>
-  app.request(
-    "/api/auth/sign-in",
-    {
-      body: JSON.stringify({ email, password }),
-      headers: { "Content-Type": "application/json" },
-      method: "POST",
-    },
-    server
-  );
-
-// the browser's part: send back the cookie the server set
-const withCookie = (res: Response) => ({
-  headers: {
-    Cookie: (res.headers.get("set-cookie") ?? "").split(";")[0] ?? "",
-  },
-});
+const withCookie = (res: Response) => ({ headers: { Cookie: cookieOf(res) } });
 
 beforeAll(() => {
   if (db.$client.filename !== ":memory:") {

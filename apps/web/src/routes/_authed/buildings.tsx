@@ -10,11 +10,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Pager, pageSearch } from "../Pager";
-import { buildingsQuery } from "../queries";
+import { Pager, pageSearch } from "../../Pager";
+import { buildingsQuery } from "../../queries";
 
 // biome-ignore assist/source/useSortedKeys: the router infers each option from the ones above it
-export const Route = createFileRoute("/buildings")({
+export const Route = createFileRoute("/_authed/buildings")({
   validateSearch: pageSearch.extend({ q: z.string().catch("").default("") }),
   // the loader runs again whenever offset or q changes
   loaderDeps: ({ search }) => ({ offset: search.offset, q: search.q }),

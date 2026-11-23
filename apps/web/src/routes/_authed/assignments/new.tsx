@@ -1,4 +1,4 @@
-// apps/web/src/routes/assignments/new.tsx — the page at /assignments/new: TanStack Form
+// apps/web/src/routes/_authed/assignments/new.tsx — the page at /assignments/new: TanStack Form
 import { NewRoute } from "@office/shared";
 import { useForm } from "@tanstack/react-form";
 import {
@@ -6,7 +6,7 @@ import {
   useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -22,10 +22,16 @@ import {
   NativeSelect,
   NativeSelectOption,
 } from "@/components/ui/native-select";
-import { ApiError, postJson } from "../../api";
-import { allEntrancesQuery, workersQuery } from "../../queries";
+import { ApiError, postJson } from "../../../api";
+import { allEntrancesQuery, workersQuery } from "../../../queries";
 
-export const Route = createFileRoute("/assignments/new")({
+export const Route = createFileRoute("/_authed/assignments/new")({
+  // a field worker gets the 403 page; the server would answer 403 to the POST anyway
+  beforeLoad: ({ context }) => {
+    if (context.me.role !== "admin") {
+      throw redirect({ to: "/forbidden" });
+    }
+  },
   component: NewAssignment,
   loader: ({ context }) =>
     Promise.all([

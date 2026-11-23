@@ -1,4 +1,4 @@
-// apps/web/src/routes/entrances/index.tsx — the page at /entrances
+// apps/web/src/routes/_authed/entrances/index.tsx — the page at /entrances
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
@@ -9,13 +9,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { EntranceForm } from "../../EntranceForm";
-import { Pager, pageSearch } from "../../Pager";
-import { allBuildingsQuery, entrancesQuery } from "../../queries";
-import { StatusBadge } from "../../StatusBadge";
+import { EntranceForm } from "../../../EntranceForm";
+import { Pager, pageSearch } from "../../../Pager";
+import { allBuildingsQuery, entrancesQuery } from "../../../queries";
+import { StatusBadge } from "../../../StatusBadge";
 
 // biome-ignore assist/source/useSortedKeys: the router infers each option from the ones above it
-export const Route = createFileRoute("/entrances/")({
+export const Route = createFileRoute("/_authed/entrances/")({
   validateSearch: pageSearch,
   loaderDeps: ({ search }) => ({ offset: search.offset }),
   // both at once: a page of entrances, and every building for the form
@@ -35,11 +35,14 @@ function Entrances() {
   const { data: page } = useSuspenseQuery(entrancesQuery(offset));
   const { data: buildings } = useSuspenseQuery(allBuildingsQuery);
   const entrances = page.items;
+  const { me } = Route.useRouteContext();
   return (
     <>
       <h1 className="font-semibold text-3xl">Entrances</h1>
       {/* the form invalidates ["entrances"]: this list refetches by itself */}
-      <EntranceForm buildings={buildings.items} />
+      {me.role === "admin" ? (
+        <EntranceForm buildings={buildings.items} />
+      ) : null}
       <Table>
         <TableHeader>
           <TableRow>

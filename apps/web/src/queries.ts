@@ -9,7 +9,7 @@ import type {
   RouteStop,
   User,
 } from "field-app-contract/contract";
-import { API, getJson } from "./api";
+import { API, apiError, getJson } from "./api";
 
 // one page of a list: the page is part of the key, so each page has its own cache entry
 // with a q, the full-text search instead: the best matches first, a page at a time
@@ -46,10 +46,28 @@ export const entranceQuery = (id: string) =>
       if (res.status === 404) {
         throw notFound();
       }
+      if (!res.ok) {
+        throw await apiError(res, `GET /api/entrances/${id}`);
+      }
       return (await res.json()) as Entrance;
     },
     queryKey: ["entrances", id],
   });
+
+// who is signed in, or null: here a 401 is an answer, not an error
+export const meQuery = queryOptions({
+  queryFn: async () => {
+    const res = await fetch(`${API}/api/auth/me`, { credentials: "include" });
+    if (res.status === 401) {
+      return null;
+    }
+    if (!res.ok) {
+      throw new Error(`GET /api/auth/me: ${res.status}`);
+    }
+    return (await res.json()) as User;
+  },
+  queryKey: ["me"],
+});
 
 export const workersQuery = queryOptions({
   queryFn: () => getJson<User[]>("/api/users?role=field"),

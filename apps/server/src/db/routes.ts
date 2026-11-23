@@ -1,17 +1,19 @@
 // apps/server/src/db/routes.ts — the queries for routes and their stops
 import type { NewRoute } from "@office/shared";
-import { asc, desc, eq } from "drizzle-orm";
+import { and, asc, desc, eq } from "drizzle-orm";
 import type { Route, RouteStop } from "field-app-contract/contract";
 import { db } from "../db";
-import { routeStops, routes, users } from "./schema";
+import { routeStops, routes } from "./schema";
 
 // a route as the contract's fixture has it: the row and its stops, in order
 export type RouteWithStops = Route & { stops: RouteStop[] };
 
-export function listRoutes(): RouteWithStops[] {
+// every route, or one field worker's
+export function listRoutes(workerId?: string): RouteWithStops[] {
   const all = db
     .select()
     .from(routes)
+    .where(workerId ? eq(routes.workerId, workerId) : undefined)
     .orderBy(desc(routes.date), asc(routes.name))
     .all();
   const stops = db
@@ -25,25 +27,43 @@ export function listRoutes(): RouteWithStops[] {
   }));
 }
 
+// one route, if it is there and (for a field worker) theirs
+export function getRoute(
+  id: string,
+  workerId?: string
+): RouteWithStops | undefined {
+  const route = db
+    .select()
+    .from(routes)
+    .where(
+      and(
+        eq(routes.id, id),
+        workerId ? eq(routes.workerId, workerId) : undefined
+      )
+    )
+    .get();
+  if (!route) {
+    return undefined;
+  }
+  const stops = db
+    .select()
+    .from(routeStops)
+    .where(eq(routeStops.routeId, id))
+    .orderBy(asc(routeStops.order))
+    .all();
+  return { ...route, stops };
+}
+
 // one transaction: the route and every stop go in together, or nothing does
-export function createRoute({
-  entranceIds,
-  ...route
-}: NewRoute): RouteWithStops {
+// adminId: the admin who is signed in
+export function createRoute(
+  { entranceIds, ...route }: NewRoute,
+  adminId: string
+): RouteWithStops {
   return db.transaction((tx) => {
-    // no sign-in yet: the first admin assigns every route
-    const admin = tx
-      .select({ id: users.id })
-      .from(users)
-      .where(eq(users.role, "admin"))
-      .orderBy(asc(users.createdAt))
-      .get();
-    if (!admin) {
-      throw new Error("No admin in the users table: run bun run db:seed");
-    }
     const created = tx
       .insert(routes)
-      .values({ ...route, adminId: admin.id })
+      .values({ ...route, adminId })
       .returning()
       .get();
     const stops = tx

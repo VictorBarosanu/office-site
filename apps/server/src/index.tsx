@@ -174,7 +174,14 @@ app.get(
   "/api/openapi.json",
   openAPIRouteHandler(app, {
     documentation: {
+      components: {
+        securitySchemes: {
+          session: { in: "cookie", name: "session", type: "apiKey" },
+        },
+      },
       info: { title: "The office API", version: "1.0.0" },
+      // every operation wants the cookie, but those that say security: []
+      security: [{ session: [] }],
     },
   })
 );

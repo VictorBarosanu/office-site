@@ -38,6 +38,7 @@ authApi.post(
       400: problemJson("Not an email, or no password"),
       401: problemJson("Wrong email or password"),
     },
+    security: [],
     summary: "Sign in with an email and a password",
     tags: ["auth"],
   }),

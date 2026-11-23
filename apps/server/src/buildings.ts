@@ -11,6 +11,7 @@ import {
   toMatchQuery,
 } from "./db/buildings";
 import { isForeignKeyError } from "./db/errors";
+import { requireRole, requireUser, type SignedIn } from "./guards";
 import {
   json,
   jsonBody,
@@ -20,7 +21,10 @@ import {
 } from "./openapi";
 import { problem } from "./problem";
 
-export const buildingsApi = new Hono();
+export const buildingsApi = new Hono<SignedIn>();
+
+// every route below: signed-in users only (401 otherwise)
+buildingsApi.use(requireUser);
 
 // GET /api/buildings?limit=10&offset=0: one page, and the total
 buildingsApi.get(
@@ -85,6 +89,7 @@ buildingsApi.get(
 
 buildingsApi.post(
   "/",
+  requireRole("admin"),
   describeRoute({
     requestBody: jsonBody(NewBuilding),
     responses: {
@@ -107,6 +112,7 @@ buildingsApi.post(
 
 buildingsApi.delete(
   "/:id",
+  requireRole("admin"),
   describeRoute({
     responses: {
       204: { description: "Deleted" },

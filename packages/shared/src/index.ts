@@ -6,6 +6,7 @@ import {
   Id,
   Route,
   RouteStop,
+  User,
 } from "field-app-contract/contract";
 import { z } from "zod";
 
@@ -55,6 +56,18 @@ export const NewSurvey = z.object({
 export type NewSurvey = z.infer<typeof NewSurvey>;
 export const Survey = NewSurvey.extend({ id: Id });
 export type Survey = z.infer<typeof Survey>;
+
+// an admin adds a user: the contract's fields, and a first password for their account
+export const NewUser = User.pick({
+  email: true,
+  name: true,
+  role: true,
+}).extend({
+  // lowercase, like the emails sign-in looks for
+  email: z.string().trim().toLowerCase().pipe(z.email("Type an email")),
+  password: z.string().min(8, "At least 8 characters"),
+});
+export type NewUser = z.infer<typeof NewUser>;
 
 // what the sign-in form sends
 export const SignIn = z.object({

@@ -9,83 +9,110 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as BuildingsRouteImport } from './routes/buildings'
-import { Route as MapRouteImport } from './routes/map'
-import { Route as AssignmentsIndexRouteImport } from './routes/assignments/index'
-import { Route as AssignmentsNewRouteImport } from './routes/assignments/new'
-import { Route as EntrancesIndexRouteImport } from './routes/entrances/index'
-import { Route as EntrancesEntranceIdRouteImport } from './routes/entrances/$entranceId'
+import { Route as AuthedRouteImport } from './routes/_authed'
+import { Route as SignInRouteImport } from './routes/sign-in'
+import { Route as AuthedIndexRouteImport } from './routes/_authed/index'
+import { Route as AuthedBuildingsRouteImport } from './routes/_authed/buildings'
+import { Route as AuthedForbiddenRouteImport } from './routes/_authed/forbidden'
+import { Route as AuthedMapRouteImport } from './routes/_authed/map'
+import { Route as AuthedAssignmentsIndexRouteImport } from './routes/_authed/assignments/index'
+import { Route as AuthedAssignmentsNewRouteImport } from './routes/_authed/assignments/new'
+import { Route as AuthedEntrancesIndexRouteImport } from './routes/_authed/entrances/index'
+import { Route as AuthedEntrancesEntranceIdRouteImport } from './routes/_authed/entrances/$entranceId'
 
-const IndexRoute = IndexRouteImport.update({
+const AuthedRoute = AuthedRouteImport.update({
+  id: '/_authed',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignInRoute = SignInRouteImport.update({
+  id: '/sign-in',
+  path: '/sign-in',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthedIndexRoute = AuthedIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthedRoute,
 } as any)
-const BuildingsRoute = BuildingsRouteImport.update({
+const AuthedBuildingsRoute = AuthedBuildingsRouteImport.update({
   id: '/buildings',
   path: '/buildings',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthedRoute,
 } as any)
-const MapRoute = MapRouteImport.update({
+const AuthedForbiddenRoute = AuthedForbiddenRouteImport.update({
+  id: '/forbidden',
+  path: '/forbidden',
+  getParentRoute: () => AuthedRoute,
+} as any)
+const AuthedMapRoute = AuthedMapRouteImport.update({
   id: '/map',
   path: '/map',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthedRoute,
 } as any)
-const AssignmentsIndexRoute = AssignmentsIndexRouteImport.update({
+const AuthedAssignmentsIndexRoute = AuthedAssignmentsIndexRouteImport.update({
   id: '/assignments/',
   path: '/assignments/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthedRoute,
 } as any)
-const AssignmentsNewRoute = AssignmentsNewRouteImport.update({
+const AuthedAssignmentsNewRoute = AuthedAssignmentsNewRouteImport.update({
   id: '/assignments/new',
   path: '/assignments/new',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthedRoute,
 } as any)
-const EntrancesIndexRoute = EntrancesIndexRouteImport.update({
+const AuthedEntrancesIndexRoute = AuthedEntrancesIndexRouteImport.update({
   id: '/entrances/',
   path: '/entrances/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthedRoute,
 } as any)
-const EntrancesEntranceIdRoute = EntrancesEntranceIdRouteImport.update({
-  id: '/entrances/$entranceId',
-  path: '/entrances/$entranceId',
-  getParentRoute: () => rootRouteImport,
-} as any)
+const AuthedEntrancesEntranceIdRoute =
+  AuthedEntrancesEntranceIdRouteImport.update({
+    id: '/entrances/$entranceId',
+    path: '/entrances/$entranceId',
+    getParentRoute: () => AuthedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/buildings': typeof BuildingsRoute
-  '/map': typeof MapRoute
-  '/assignments/new': typeof AssignmentsNewRoute
-  '/entrances/$entranceId': typeof EntrancesEntranceIdRoute
-  '/assignments/': typeof AssignmentsIndexRoute
-  '/entrances/': typeof EntrancesIndexRoute
+  '/': typeof AuthedIndexRoute
+  '/sign-in': typeof SignInRoute
+  '/buildings': typeof AuthedBuildingsRoute
+  '/forbidden': typeof AuthedForbiddenRoute
+  '/map': typeof AuthedMapRoute
+  '/assignments/new': typeof AuthedAssignmentsNewRoute
+  '/entrances/$entranceId': typeof AuthedEntrancesEntranceIdRoute
+  '/assignments/': typeof AuthedAssignmentsIndexRoute
+  '/entrances/': typeof AuthedEntrancesIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/buildings': typeof BuildingsRoute
-  '/map': typeof MapRoute
-  '/assignments/new': typeof AssignmentsNewRoute
-  '/entrances/$entranceId': typeof EntrancesEntranceIdRoute
-  '/assignments': typeof AssignmentsIndexRoute
-  '/entrances': typeof EntrancesIndexRoute
+  '/sign-in': typeof SignInRoute
+  '/buildings': typeof AuthedBuildingsRoute
+  '/forbidden': typeof AuthedForbiddenRoute
+  '/map': typeof AuthedMapRoute
+  '/': typeof AuthedIndexRoute
+  '/assignments/new': typeof AuthedAssignmentsNewRoute
+  '/entrances/$entranceId': typeof AuthedEntrancesEntranceIdRoute
+  '/assignments': typeof AuthedAssignmentsIndexRoute
+  '/entrances': typeof AuthedEntrancesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/buildings': typeof BuildingsRoute
-  '/map': typeof MapRoute
-  '/assignments/new': typeof AssignmentsNewRoute
-  '/entrances/$entranceId': typeof EntrancesEntranceIdRoute
-  '/assignments/': typeof AssignmentsIndexRoute
-  '/entrances/': typeof EntrancesIndexRoute
+  '/_authed': typeof AuthedRouteWithChildren
+  '/sign-in': typeof SignInRoute
+  '/_authed/buildings': typeof AuthedBuildingsRoute
+  '/_authed/forbidden': typeof AuthedForbiddenRoute
+  '/_authed/map': typeof AuthedMapRoute
+  '/_authed/': typeof AuthedIndexRoute
+  '/_authed/assignments/new': typeof AuthedAssignmentsNewRoute
+  '/_authed/entrances/$entranceId': typeof AuthedEntrancesEntranceIdRoute
+  '/_authed/assignments/': typeof AuthedAssignmentsIndexRoute
+  '/_authed/entrances/': typeof AuthedEntrancesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/sign-in'
     | '/buildings'
+    | '/forbidden'
     | '/map'
     | '/assignments/new'
     | '/entrances/$entranceId'
@@ -93,96 +120,137 @@ export interface FileRouteTypes {
     | '/entrances/'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/'
+    | '/sign-in'
     | '/buildings'
+    | '/forbidden'
     | '/map'
+    | '/'
     | '/assignments/new'
     | '/entrances/$entranceId'
     | '/assignments'
     | '/entrances'
   id:
     | '__root__'
-    | '/'
-    | '/buildings'
-    | '/map'
-    | '/assignments/new'
-    | '/entrances/$entranceId'
-    | '/assignments/'
-    | '/entrances/'
+    | '/_authed'
+    | '/sign-in'
+    | '/_authed/buildings'
+    | '/_authed/forbidden'
+    | '/_authed/map'
+    | '/_authed/'
+    | '/_authed/assignments/new'
+    | '/_authed/entrances/$entranceId'
+    | '/_authed/assignments/'
+    | '/_authed/entrances/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  BuildingsRoute: typeof BuildingsRoute
-  MapRoute: typeof MapRoute
-  AssignmentsNewRoute: typeof AssignmentsNewRoute
-  EntrancesEntranceIdRoute: typeof EntrancesEntranceIdRoute
-  AssignmentsIndexRoute: typeof AssignmentsIndexRoute
-  EntrancesIndexRoute: typeof EntrancesIndexRoute
+  AuthedRoute: typeof AuthedRouteWithChildren
+  SignInRoute: typeof SignInRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
+    '/_authed': {
+      id: '/_authed'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sign-in': {
+      id: '/sign-in'
+      path: '/sign-in'
+      fullPath: '/sign-in'
+      preLoaderRoute: typeof SignInRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authed/': {
+      id: '/_authed/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthedIndexRouteImport
+      parentRoute: typeof AuthedRoute
     }
-    '/buildings': {
-      id: '/buildings'
+    '/_authed/buildings': {
+      id: '/_authed/buildings'
       path: '/buildings'
       fullPath: '/buildings'
-      preLoaderRoute: typeof BuildingsRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthedBuildingsRouteImport
+      parentRoute: typeof AuthedRoute
     }
-    '/map': {
-      id: '/map'
+    '/_authed/forbidden': {
+      id: '/_authed/forbidden'
+      path: '/forbidden'
+      fullPath: '/forbidden'
+      preLoaderRoute: typeof AuthedForbiddenRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/map': {
+      id: '/_authed/map'
       path: '/map'
       fullPath: '/map'
-      preLoaderRoute: typeof MapRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthedMapRouteImport
+      parentRoute: typeof AuthedRoute
     }
-    '/assignments/': {
-      id: '/assignments/'
+    '/_authed/assignments/': {
+      id: '/_authed/assignments/'
       path: '/assignments'
       fullPath: '/assignments/'
-      preLoaderRoute: typeof AssignmentsIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthedAssignmentsIndexRouteImport
+      parentRoute: typeof AuthedRoute
     }
-    '/assignments/new': {
-      id: '/assignments/new'
+    '/_authed/assignments/new': {
+      id: '/_authed/assignments/new'
       path: '/assignments/new'
       fullPath: '/assignments/new'
-      preLoaderRoute: typeof AssignmentsNewRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthedAssignmentsNewRouteImport
+      parentRoute: typeof AuthedRoute
     }
-    '/entrances/': {
-      id: '/entrances/'
+    '/_authed/entrances/': {
+      id: '/_authed/entrances/'
       path: '/entrances'
       fullPath: '/entrances/'
-      preLoaderRoute: typeof EntrancesIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthedEntrancesIndexRouteImport
+      parentRoute: typeof AuthedRoute
     }
-    '/entrances/$entranceId': {
-      id: '/entrances/$entranceId'
+    '/_authed/entrances/$entranceId': {
+      id: '/_authed/entrances/$entranceId'
       path: '/entrances/$entranceId'
       fullPath: '/entrances/$entranceId'
-      preLoaderRoute: typeof EntrancesEntranceIdRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthedEntrancesEntranceIdRouteImport
+      parentRoute: typeof AuthedRoute
     }
   }
 }
 
+interface AuthedRouteChildren {
+  AuthedBuildingsRoute: typeof AuthedBuildingsRoute
+  AuthedForbiddenRoute: typeof AuthedForbiddenRoute
+  AuthedMapRoute: typeof AuthedMapRoute
+  AuthedIndexRoute: typeof AuthedIndexRoute
+  AuthedAssignmentsNewRoute: typeof AuthedAssignmentsNewRoute
+  AuthedEntrancesEntranceIdRoute: typeof AuthedEntrancesEntranceIdRoute
+  AuthedAssignmentsIndexRoute: typeof AuthedAssignmentsIndexRoute
+  AuthedEntrancesIndexRoute: typeof AuthedEntrancesIndexRoute
+}
+
+const AuthedRouteChildren: AuthedRouteChildren = {
+  AuthedBuildingsRoute: AuthedBuildingsRoute,
+  AuthedForbiddenRoute: AuthedForbiddenRoute,
+  AuthedMapRoute: AuthedMapRoute,
+  AuthedIndexRoute: AuthedIndexRoute,
+  AuthedAssignmentsNewRoute: AuthedAssignmentsNewRoute,
+  AuthedEntrancesEntranceIdRoute: AuthedEntrancesEntranceIdRoute,
+  AuthedAssignmentsIndexRoute: AuthedAssignmentsIndexRoute,
+  AuthedEntrancesIndexRoute: AuthedEntrancesIndexRoute,
+}
+
+const AuthedRouteWithChildren =
+  AuthedRoute._addFileChildren(AuthedRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  BuildingsRoute: BuildingsRoute,
-  MapRoute: MapRoute,
-  AssignmentsNewRoute: AssignmentsNewRoute,
-  EntrancesEntranceIdRoute: EntrancesEntranceIdRoute,
-  AssignmentsIndexRoute: AssignmentsIndexRoute,
-  EntrancesIndexRoute: EntrancesIndexRoute,
+  AuthedRoute: AuthedRouteWithChildren,
+  SignInRoute: SignInRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

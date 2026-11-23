@@ -5,6 +5,7 @@ import { migrate } from "../scripts/migrate";
 import { seed } from "../scripts/seed";
 import { db } from "./db";
 import app from "./index";
+import { as, cookieOf, IRINA, PASSWORD, signIn } from "./testing";
 
 // what every 4xx and 5xx carries (RFC 9457); a 400 adds the field messages
 interface Problem {
@@ -16,20 +17,24 @@ interface Problem {
   type: string;
 }
 
-const getPage = async (path: string) =>
-  (await (await app.request(path)).json()) as Page<{ id: string }>;
+// every request below is the admin's (step 6: the API wants a signed-in user)
+let api: ReturnType<typeof as>;
 
-beforeAll(() => {
+const getPage = async (path: string) =>
+  (await (await api(path)).json()) as Page<{ id: string }>;
+
+beforeAll(async () => {
   if (db.$client.filename !== ":memory:") {
     throw new Error(`Refusing to test on ${db.$client.filename}`);
   }
   migrate();
-  seed("test-only-password");
+  seed(PASSWORD);
+  api = as(cookieOf(await signIn(IRINA)));
 });
 
 test("a 404 is a problem+json: type, title, status, detail, instance", async () => {
   const id = crypto.randomUUID();
-  const res = await app.request(`/api/entrances/${id}`);
+  const res = await api(`/api/entrances/${id}`);
   expect(res.status).toBe(404);
   expect(res.headers.get("content-type")).toStartWith(
     "application/problem+json"
@@ -44,13 +49,13 @@ test("a 404 is a problem+json: type, title, status, detail, instance", async () 
 });
 
 test("an unknown /api path is a problem+json too", async () => {
-  const res = await app.request("/api/nothing-here");
+  const res = await api("/api/nothing-here");
   expect(res.status).toBe(404);
   expect(((await res.json()) as Problem).title).toBe("Not Found");
 });
 
 test("a 400 keeps the field messages as the extension member errors", async () => {
-  const res = await app.request("/api/buildings", {
+  const res = await api("/api/buildings", {
     body: JSON.stringify({ label: "" }),
     headers: { "Content-Type": "application/json" },
     method: "POST",
@@ -95,7 +100,7 @@ test("the defaults are limit 10, offset 0; a bad limit is a 400", async () => {
     offset: 0,
     total: 0,
   });
-  const bad = await app.request("/api/buildings?limit=1000");
+  const bad = await api("/api/buildings?limit=1000");
   expect(bad.status).toBe(400);
   expect(((await bad.json()) as Problem).errors?.limit).toBeArray();
 });
@@ -118,6 +123,7 @@ test("the OpenAPI document describes every API path", async () => {
     "/api/entrances",
     "/api/entrances/{id}",
     "/api/routes",
+    "/api/routes/{id}",
     "/api/surveys",
     "/api/users",
   ]);
@@ -155,12 +161,12 @@ test("a miss is an empty page, and FTS5 syntax is only text", async () => {
   expect(await search("zzz")).toMatchObject({ items: [], total: 0 });
   expect((await search('" OR * AND (')).total).toBe(0);
   expect((await search("!!!")).total).toBe(0);
-  const empty = await app.request("/api/buildings/search?q=");
+  const empty = await api("/api/buildings/search?q=");
   expect(empty.status).toBe(400);
 });
 
 test("a new building is found at once: the trigger indexed it", async () => {
-  await app.request("/api/buildings", {
+  await api("/api/buildings", {
     body: JSON.stringify({ comment: "Behind the market", label: "Obor 3" }),
     headers: { "Content-Type": "application/json" },
     method: "POST",
@@ -171,7 +177,7 @@ test("a new building is found at once: the trigger indexed it", async () => {
 test("buildings with the same score keep one order, so pages never repeat or skip", async () => {
   await Promise.all(
     [1, 2, 3].map(() =>
-      app.request("/api/buildings", {
+      api("/api/buildings", {
         body: JSON.stringify({ comment: "Quokka", label: "Quokka" }),
         headers: { "Content-Type": "application/json" },
         method: "POST",

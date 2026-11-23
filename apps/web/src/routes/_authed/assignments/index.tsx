@@ -1,4 +1,4 @@
-// apps/web/src/routes/assignments/index.tsx — the page at /assignments
+// apps/web/src/routes/_authed/assignments/index.tsx — the page at /assignments
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { buttonVariants } from "@/components/ui/button";
@@ -10,9 +10,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { assignmentsQuery, workersQuery } from "../../queries";
+import { assignmentsQuery, workersQuery } from "../../../queries";
 
-export const Route = createFileRoute("/assignments/")({
+export const Route = createFileRoute("/_authed/assignments/")({
   component: Assignments,
   loader: ({ context }) =>
     Promise.all([
@@ -24,13 +24,17 @@ export const Route = createFileRoute("/assignments/")({
 function Assignments() {
   const { data: assignments } = useSuspenseQuery(assignmentsQuery);
   const { data: workers } = useSuspenseQuery(workersQuery);
+  const { me } = Route.useRouteContext();
   return (
     <>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h1 className="font-semibold text-3xl">Assignments</h1>
-        <Link className={buttonVariants()} to="/assignments/new">
-          New assignment
-        </Link>
+        {/* hidden is only for the eye: the server's 403 is the real check */}
+        {me.role === "admin" ? (
+          <Link className={buttonVariants()} to="/assignments/new">
+            New assignment
+          </Link>
+        ) : null}
       </div>
       <Table>
         <TableHeader>

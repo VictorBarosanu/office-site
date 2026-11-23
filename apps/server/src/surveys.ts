@@ -4,6 +4,7 @@ import { Hono } from "hono";
 import { describeRoute } from "hono-openapi";
 import { isForeignKeyError } from "./db/errors";
 import { createSurvey, listSurveys } from "./db/surveys";
+import { requireRole, requireUser, type SignedIn } from "./guards";
 import {
   json,
   jsonBody,
@@ -13,7 +14,10 @@ import {
 } from "./openapi";
 import { problem } from "./problem";
 
-export const surveysApi = new Hono();
+export const surveysApi = new Hono<SignedIn>();
+
+// every route below: signed-in users only (401 otherwise)
+surveysApi.use(requireUser);
 
 // GET /api/surveys?entranceId=<id>&limit=10&offset=0: one entrance's surveys, a page
 surveysApi.get(
@@ -47,6 +51,7 @@ surveysApi.get(
 
 surveysApi.post(
   "/",
+  requireRole("admin"),
   describeRoute({
     requestBody: jsonBody(NewSurvey),
     responses: {

@@ -3,10 +3,10 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { entranceQuery } from "../../queries";
-import { StatusBadge } from "../../StatusBadge";
+import { entranceQuery } from "../../../queries";
+import { StatusBadge } from "../../../StatusBadge";
 
-export const Route = createFileRoute("/entrances/$entranceId")({
+export const Route = createFileRoute("/_authed/entrances/$entranceId")({
   component: EntrancePage,
   // params.entranceId is the part of the URL the file name calls $entranceId
   loader: ({ context, params }) =>
