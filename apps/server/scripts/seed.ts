@@ -17,6 +17,7 @@ import {
   entrances,
   routeStops,
   routes,
+  session,
   surveys,
   users,
 } from "../src/db/schema";
@@ -47,6 +48,7 @@ export function seed(password: string | undefined) {
   }));
   db.transaction((tx) => {
     // children first: a building cannot go while its entrances point at it
+    tx.delete(session).run();
     tx.delete(account).run();
     tx.delete(routeStops).run();
     tx.delete(routes).run();
@@ -71,6 +73,7 @@ if (import.meta.main) {
     entrances: await db.$count(entrances),
     routeStops: await db.$count(routeStops),
     routes: await db.$count(routes),
+    sessions: await db.$count(session),
     surveys: await db.$count(surveys),
     users: await db.$count(users),
   });

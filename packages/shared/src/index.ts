@@ -6,7 +6,6 @@ import {
   Id,
   Route,
   RouteStop,
-  User,
 } from "field-app-contract/contract";
 import { z } from "zod";
 
@@ -64,9 +63,6 @@ export const SignIn = z.object({
   password: z.string().min(1, "Type your password"),
 });
 export type SignIn = z.infer<typeof SignIn>;
-
-// what sign-in answers while the token travels in the body (step 5 moves it to a cookie)
-export const SignInAnswer = z.object({ token: z.string(), user: User });
 
 // ?limit=10&offset=40: the query string's text, as numbers, with the defaults
 export const PageQuery = z.object({

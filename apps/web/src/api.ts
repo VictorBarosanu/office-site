@@ -5,7 +5,8 @@ export const API: string =
   import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 
 export async function getJson<T>(path: string): Promise<T> {
-  const res = await fetch(`${API}${path}`);
+  // include: send the session cookie, though the API is on another port
+  const res = await fetch(`${API}${path}`, { credentials: "include" });
   if (!res.ok) {
     throw new Error(`GET ${path}: ${res.status}`);
   }
@@ -25,6 +26,7 @@ export class ApiError extends Error {
 export async function postJson<T>(path: string, body: unknown): Promise<T> {
   const res = await fetch(`${API}${path}`, {
     body: JSON.stringify(body),
+    credentials: "include",
     headers: { "Content-Type": "application/json" },
     method: "POST",
   });

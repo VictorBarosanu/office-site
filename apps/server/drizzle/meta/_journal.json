@@ -29,6 +29,13 @@
       "when": 1795392738104,
       "tag": "0003_accounts",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1795393857167,
+      "tag": "0004_sessions",
+      "breakpoints": true
     }
   ]
 }

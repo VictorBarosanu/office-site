@@ -118,3 +118,22 @@ export const account = sqliteTable("account", {
     .$defaultFn(() => new Date())
     .$onUpdateFn(() => new Date()),
 });
+
+// Better Auth's session table: the token is the cookie's value; signing out deletes the row
+export const session = sqliteTable("session", {
+  id: row.id,
+  token: text().notNull().unique(),
+  userId: text()
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  expiresAt: integer({ mode: "timestamp_ms" }).notNull(),
+  ipAddress: text(),
+  userAgent: text(),
+  createdAt: integer({ mode: "timestamp_ms" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+  updatedAt: integer({ mode: "timestamp_ms" })
+    .notNull()
+    .$defaultFn(() => new Date())
+    .$onUpdateFn(() => new Date()),
+});

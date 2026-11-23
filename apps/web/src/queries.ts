@@ -40,7 +40,9 @@ export const allEntrancesQuery = entrancesQuery(0, 100);
 export const entranceQuery = (id: string) =>
   queryOptions({
     queryFn: async () => {
-      const res = await fetch(`${API}/api/entrances/${id}`);
+      const res = await fetch(`${API}/api/entrances/${id}`, {
+        credentials: "include",
+      });
       if (res.status === 404) {
         throw notFound();
       }

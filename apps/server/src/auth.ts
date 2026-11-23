@@ -1,16 +1,23 @@
-// apps/server/src/auth.ts — sign-in by hand: Bun.password, and a session token
-import { fieldErrors, SignIn, SignInAnswer } from "@office/shared";
+// apps/server/src/auth.ts — sign-in by hand: Bun.password, a session row, an HttpOnly cookie
+import { fieldErrors, SignIn } from "@office/shared";
 import { User } from "field-app-contract/contract";
 import { Hono } from "hono";
+import { getConnInfo } from "hono/bun";
+import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import { describeRoute } from "hono-openapi";
-import { findCredential, getUser } from "./db/auth";
+import {
+  createSession,
+  deleteSession,
+  findCredential,
+  findSessionUser,
+} from "./db/auth";
 import { json, jsonBody, problemJson } from "./openapi";
 import { problem } from "./problem";
 
 export const authApi = new Hono();
 
-// token → user id; in memory, so a restart signs everybody out (step 5 fixes that)
-const sessions = new Map<string, string>();
+// a week, as Better Auth's default; the cookie and the row expire together
+const SESSION_SECONDS = 60 * 60 * 24 * 7;
 
 // 32 random bytes from the operating system's generator, as URL-safe text
 const newToken = () =>
@@ -24,7 +31,10 @@ authApi.post(
   describeRoute({
     requestBody: jsonBody(SignIn),
     responses: {
-      200: json("Signed in: the token and the user", SignInAnswer),
+      200: json(
+        "Signed in: the user; the session is in an HttpOnly cookie",
+        User
+      ),
       400: problemJson("Not an email, or no password"),
       401: problemJson("Wrong email or password"),
     },
@@ -46,12 +56,27 @@ authApi.post(
       return problem(c, 401, "Wrong email or password");
     }
     const token = newToken();
-    sessions.set(token, found.user.id);
-    return c.json({ token, user: found.user });
+    createSession({
+      expiresAt: new Date(Date.now() + SESSION_SECONDS * 1000),
+      ipAddress: getConnInfo(c).remote.address ?? null,
+      token,
+      userAgent: c.req.header("User-Agent") ?? null,
+      userId: found.user.id,
+    });
+    // HttpOnly: no script can read it; Lax: other sites' forms cannot send it;
+    // Secure (https only) in production: localhost is http
+    setCookie(c, "session", token, {
+      httpOnly: true,
+      maxAge: SESSION_SECONDS,
+      path: "/",
+      sameSite: "Lax",
+      secure: Bun.env.NODE_ENV === "production",
+    });
+    return c.json(found.user);
   }
 );
 
-// GET /api/auth/me with Authorization: Bearer <token>: who is signed in
+// GET /api/auth/me: who is signed in, from the cookie the browser sends
 authApi.get(
   "/me",
   describeRoute({
@@ -63,10 +88,26 @@ authApi.get(
     tags: ["auth"],
   }),
   (c) => {
-    const header = c.req.header("Authorization") ?? "";
-    const token = header.startsWith("Bearer ") ? header.slice(7) : "";
-    const userId = sessions.get(token);
-    const user = userId ? getUser(userId) : undefined;
+    const token = getCookie(c, "session");
+    const user = token ? findSessionUser(token) : undefined;
     return user ? c.json(user) : problem(c, 401, "Sign in first");
+  }
+);
+
+// the row goes: the cookie, and any copy of it, opens nothing any more
+authApi.post(
+  "/sign-out",
+  describeRoute({
+    responses: { 204: { description: "Signed out" } },
+    summary: "Sign out",
+    tags: ["auth"],
+  }),
+  (c) => {
+    const token = getCookie(c, "session");
+    if (token) {
+      deleteSession(token);
+    }
+    deleteCookie(c, "session", { path: "/" });
+    return c.body(null, 204);
   }
 );
