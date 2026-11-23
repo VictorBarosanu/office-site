@@ -15,6 +15,13 @@
       "when": 1794410170366,
       "tag": "0001_routes-and-users",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1795391686909,
+      "tag": "0002_buildings-search",
+      "breakpoints": true
     }
   ]
 }

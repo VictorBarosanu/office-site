@@ -110,6 +110,7 @@ test("the OpenAPI document describes every API path", async () => {
   expect(doc.openapi).toStartWith("3.");
   expect(Object.keys(doc.paths).sort()).toEqual([
     "/api/buildings",
+    "/api/buildings/search",
     "/api/buildings/{id}",
     "/api/entrances",
     "/api/entrances/{id}",
@@ -131,4 +132,53 @@ test("the docs page is an HTML page that reads the document", async () => {
   expect(res.status).toBe(200);
   expect(res.headers.get("content-type")).toStartWith("text/html");
   expect(await res.text()).toContain("/api/openapi.json");
+});
+
+const search = (q: string) =>
+  getPage(`/api/buildings/search?q=${encodeURIComponent(q)}`);
+
+test("the search finds a building by a word of its label or its comment", async () => {
+  const byLabel = await search("lipscani");
+  expect(byLabel.total).toBe(1);
+  expect(byLabel.items[0]).toMatchObject({ label: "Lipscani 41" });
+  // a prefix, and no diacritics: "france" finds "Franceză 28"
+  expect((await search("france")).items[0]).toMatchObject({
+    label: "Franceză 28",
+  });
+  expect((await search("courtyard")).total).toBe(1);
+});
+
+test("a miss is an empty page, and FTS5 syntax is only text", async () => {
+  expect(await search("zzz")).toMatchObject({ items: [], total: 0 });
+  expect((await search('" OR * AND (')).total).toBe(0);
+  expect((await search("!!!")).total).toBe(0);
+  const empty = await app.request("/api/buildings/search?q=");
+  expect(empty.status).toBe(400);
+});
+
+test("a new building is found at once: the trigger indexed it", async () => {
+  await app.request("/api/buildings", {
+    body: JSON.stringify({ comment: "Behind the market", label: "Obor 3" }),
+    headers: { "Content-Type": "application/json" },
+    method: "POST",
+  });
+  expect((await search("market")).items[0]).toMatchObject({ label: "Obor 3" });
+});
+
+test("buildings with the same score keep one order, so pages never repeat or skip", async () => {
+  await Promise.all(
+    [1, 2, 3].map(() =>
+      app.request("/api/buildings", {
+        body: JSON.stringify({ comment: "Quokka", label: "Quokka" }),
+        headers: { "Content-Type": "application/json" },
+        method: "POST",
+      })
+    )
+  );
+  const one = async (offset: number) =>
+    (await getPage(`/api/buildings/search?q=quokka&limit=1&offset=${offset}`))
+      .items[0]?.id ?? "";
+  const ids = [await one(0), await one(1), await one(2)];
+  expect(new Set(ids).size).toBe(3);
+  expect(ids).toEqual([...ids].sort());
 });

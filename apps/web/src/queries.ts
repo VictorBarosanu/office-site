@@ -12,11 +12,16 @@ import type {
 import { API, getJson } from "./api";
 
 // one page of a list: the page is part of the key, so each page has its own cache entry
-export const buildingsQuery = (offset = 0, limit = 10) =>
+// with a q, the full-text search instead: the best matches first, a page at a time
+export const buildingsQuery = (offset = 0, limit = 10, q = "") =>
   queryOptions({
     queryFn: () =>
-      getJson<Page<Building>>(`/api/buildings?limit=${limit}&offset=${offset}`),
-    queryKey: ["buildings", { limit, offset }],
+      getJson<Page<Building>>(
+        q
+          ? `/api/buildings/search?q=${encodeURIComponent(q)}&limit=${limit}&offset=${offset}`
+          : `/api/buildings?limit=${limit}&offset=${offset}`
+      ),
+    queryKey: ["buildings", { limit, offset, q }],
   });
 
 export const entrancesQuery = (offset = 0, limit = 10) =>

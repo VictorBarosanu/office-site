@@ -1,4 +1,5 @@
-// apps/web/src/Pager.tsx — Prev and Next under a list: links to ?offset=…, so the page is in the URL
+// apps/web/src/Pager.tsx — Prev and Next under a list: links to ?offset=…, so the page is in the URL;
+// the other search params (?q=…) stay as they are
 import { Link } from "@tanstack/react-router";
 import { z } from "zod";
 import { buttonVariants } from "@/components/ui/button";
@@ -27,7 +28,7 @@ export function Pager({
       <Link
         className={pager}
         disabled={offset === 0}
-        search={{ offset: Math.max(offset - limit, 0) }}
+        search={(prev) => ({ ...prev, offset: Math.max(offset - limit, 0) })}
         to="."
       >
         Prev
@@ -38,7 +39,7 @@ export function Pager({
       <Link
         className={pager}
         disabled={last >= total}
-        search={{ offset: offset + limit }}
+        search={(prev) => ({ ...prev, offset: offset + limit })}
         to="."
       >
         Next

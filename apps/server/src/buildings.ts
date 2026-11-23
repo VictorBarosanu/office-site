@@ -3,7 +3,13 @@ import { fieldErrors, NewBuilding, PageQuery } from "@office/shared";
 import { Building } from "field-app-contract/contract";
 import { Hono } from "hono";
 import { describeRoute } from "hono-openapi";
-import { createBuilding, deleteBuilding, listBuildings } from "./db/buildings";
+import {
+  createBuilding,
+  deleteBuilding,
+  listBuildings,
+  searchBuildings,
+  toMatchQuery,
+} from "./db/buildings";
 import { isForeignKeyError } from "./db/errors";
 import {
   json,
@@ -36,6 +42,44 @@ buildingsApi.get(
       });
     }
     return c.json(listBuildings(page.data));
+  }
+);
+
+// GET /api/buildings/search?q=lipscani: the best matches first, a page at a time
+buildingsApi.get(
+  "/search",
+  describeRoute({
+    parameters: [
+      { in: "query", name: "q", required: true, schema: { type: "string" } },
+      ...(pageParameters ?? []),
+    ],
+    responses: {
+      200: pageJson("One page of matches, the best first", Building),
+      400: problemJson("No q, or a bad limit or offset"),
+    },
+    summary: "Search the buildings' labels and comments",
+    tags: ["buildings"],
+  }),
+  (c) => {
+    const page = PageQuery.safeParse(c.req.query());
+    if (!page.success) {
+      return problem(c, 400, "limit is 1 to 100, offset 0 or more", {
+        errors: fieldErrors(page.error),
+      });
+    }
+    const q = c.req.query("q")?.trim();
+    if (!q) {
+      return problem(c, 400, "q is required: the words to search for", {
+        errors: { q: ["Type a word to search for"] },
+      });
+    }
+    // "!!!" has no word in it: nothing can match
+    const match = toMatchQuery(q);
+    return c.json(
+      match
+        ? searchBuildings(match, page.data)
+        : { items: [], ...page.data, total: 0 }
+    );
   }
 );
 
