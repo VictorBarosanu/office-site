@@ -4,8 +4,9 @@ import { fieldErrors, NewUser } from "@office/shared";
 import { Role, User } from "field-app-contract/contract";
 import { Hono } from "hono";
 import { describeRoute } from "hono-openapi";
+import { auth, WEB } from "./auth";
 import { isUniqueError } from "./db/errors";
-import { createUser, listUsers } from "./db/users";
+import { createUser, deleteUser, listUsers } from "./db/users";
 import { requireRole, requireUser, type SignedIn } from "./guards";
 import { json, jsonBody, problemJson } from "./openapi";
 import { problem } from "./problem";
@@ -35,14 +36,14 @@ usersApi.get(
   }
 );
 
-// no sign-up: an admin adds a user, with a first password (week 8 sends an invitation)
+// no sign-up: an admin adds a user, and Better Auth mails them a link to set their password
 usersApi.post(
   "/",
   requireRole("admin"),
   describeRoute({
     requestBody: jsonBody(NewUser),
     responses: {
-      201: json("The user, without the password", User),
+      201: json("The user; the invitation mail is on its way", User),
       400: problemJson("Not a valid user"),
       409: problemJson("The email is taken"),
     },
@@ -56,9 +57,19 @@ usersApi.post(
         errors: fieldErrors(result.error),
       });
     }
-    const hash = await Bun.password.hash(result.data.password);
     try {
-      return c.json(await createUser(result.data, hash), 201);
+      const created = await createUser(result.data);
+      // the invitation: Better Auth's reset-password flow, for a password never set
+      await auth.api
+        .requestPasswordReset({
+          body: { email: created.email, redirectTo: `${WEB}/set-password` },
+        })
+        .catch(async (error: unknown) => {
+          // no invitation, no user: the admin's retry is a fresh start, not a 409
+          await deleteUser(created.id);
+          throw error;
+        });
+      return c.json(created, 201);
     } catch (error) {
       if (isUniqueError(error)) {
         return problem(c, 409, "The email is taken", {

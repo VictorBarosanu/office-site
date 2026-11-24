@@ -2,6 +2,7 @@
 // It reads BETTER_AUTH_SECRET (signs the cookie) and BETTER_AUTH_URL (its own address) from .env
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { eq } from "drizzle-orm";
 import { db } from "./db";
 import { account, session, users, verification } from "./db/schema";
 import { sendMail } from "./mail";
@@ -19,6 +20,13 @@ export const auth = betterAuth({
     // still no open sign-up: the seed and an admin add people (week 7)
     disableSignUp: true,
     enabled: true,
+    // the link came to this inbox, so setting the password proves the address too
+    onPasswordReset: async ({ user }) => {
+      await db
+        .update(users)
+        .set({ emailVerified: true })
+        .where(eq(users.id, user.id));
+    },
     // week 7's hashes keep working: Bun.password (argon2id), not Better Auth's scrypt
     password: {
       hash: (password) => Bun.password.hash(password),
@@ -26,6 +34,15 @@ export const auth = betterAuth({
     },
     // no session until the person has opened the link we mailed them
     requireEmailVerification: true,
+    // the invitation (POST /api/users) is a reset link for a password never set
+    sendResetPassword: ({ url, user }) => {
+      sendMail({
+        subject: "Set your password for the office",
+        text: `Hello ${user.name},\n\nYou have an account at the office. Open this link to set your password:\n${url}\n\nThe link works once, for an hour.`,
+        to: user.email,
+      });
+      return Promise.resolve();
+    },
   },
   emailVerification: {
     // after the link: signed in, and sent on to the app

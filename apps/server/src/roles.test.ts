@@ -97,11 +97,10 @@ test("a route is assigned by the admin who is signed in", async () => {
   expect(created.adminId).toBe("7d07e973-eebc-44b1-b7cd-bd1cd2fff3c5");
 });
 
-test("only an admin adds a user, whose password then works: only the address is left to verify", async () => {
+test("only an admin adds a user, with no password: none signs in yet", async () => {
   const user = {
     email: "new.worker@example.com",
     name: "New Worker",
-    password: "a-first-password",
     role: "field",
   };
   expect((await andrei("/api/users", postJson(user))).status).toBe(403);
@@ -109,8 +108,7 @@ test("only an admin adds a user, whose password then works: only the address is 
   expect(res.status).toBe(201);
   // no password, and none of Better Auth's own columns either
   expect(Object.keys((await res.json()) as object).sort()).toEqual(USER_FIELDS);
-  // 403, not 401: the password is right, the email is not verified yet (step 5)
-  expect((await signIn(user.email, user.password)).status).toBe(403);
+  expect((await signIn(user.email, "any-password-at-all")).status).toBe(401);
   // the email is taken now
   expect((await admin("/api/users", postJson(user))).status).toBe(409);
 });
@@ -119,16 +117,12 @@ test("a new user's email is stored lowercase, so one address is one account", as
   const user = {
     email: "  Mixed.Case@Example.com ",
     name: "Mixed Case",
-    password: "a-first-password",
     role: "field",
   };
   const res = await admin("/api/users", postJson(user));
   expect(res.status).toBe(201);
   expect(((await res.json()) as { email: string }).email).toBe(
     "mixed.case@example.com"
-  );
-  expect((await signIn("mixed.case@example.com", user.password)).status).toBe(
-    403
   );
   // the same address in other letters is the same account
   const again = { ...user, email: "MIXED.CASE@example.com" };

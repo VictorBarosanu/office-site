@@ -4,7 +4,7 @@ import { asc, eq, getTableColumns } from "drizzle-orm";
 import type { Role, User } from "field-app-contract/contract";
 import { db } from "../db";
 import { iso } from "./iso";
-import { account, users } from "./schema";
+import { users } from "./schema";
 
 // the contract's columns: never Better Auth's own two (emailVerified, image)
 const {
@@ -23,22 +23,16 @@ export async function listUsers(role?: Role): Promise<User[]> {
   return rows.map(iso);
 }
 
-// the user and their credential account, together or not at all; hash: Bun.password's
-export function createUser(
-  { password: _password, ...newUser }: NewUser,
-  hash: string
-): Promise<User> {
-  return db.transaction(async (tx) => {
-    const [created] = await tx.insert(users).values(newUser).returning(user);
-    if (!created) {
-      throw new Error("INSERT … RETURNING gave back no row");
-    }
-    await tx.insert(account).values({
-      accountId: created.id,
-      password: hash,
-      providerId: "credential",
-      userId: created.id,
-    });
-    return iso(created);
-  });
+// the user alone: no credential account, so no password works until they set one
+export async function createUser(newUser: NewUser): Promise<User> {
+  const [created] = await db.insert(users).values(newUser).returning(user);
+  if (!created) {
+    throw new Error("INSERT … RETURNING gave back no row");
+  }
+  return iso(created);
+}
+
+// an invitation that could not be sent takes its user back with it
+export async function deleteUser(id: string): Promise<void> {
+  await db.delete(users).where(eq(users.id, id));
 }

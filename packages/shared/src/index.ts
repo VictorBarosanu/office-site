@@ -57,7 +57,8 @@ export type NewSurvey = z.infer<typeof NewSurvey>;
 export const Survey = NewSurvey.extend({ id: Id });
 export type Survey = z.infer<typeof Survey>;
 
-// an admin adds a user: the contract's fields, and a first password for their account
+// an admin adds a user: the contract's fields; no password, the user sets their own
+// from the invitation mail
 export const NewUser = User.pick({
   email: true,
   name: true,
@@ -65,7 +66,6 @@ export const NewUser = User.pick({
 }).extend({
   // lowercase, like the emails sign-in looks for
   email: z.string().trim().toLowerCase().pipe(z.email("Type an email")),
-  password: z.string().min(8, "At least 8 characters"),
 });
 export type NewUser = z.infer<typeof NewUser>;
 
