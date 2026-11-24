@@ -1,0 +1,36 @@
+# docker-compose.yml — the services the app needs on this computer: docker compose up -d --wait
+name: office
+
+services:
+  # the database: the app's own (office) and the tests' (office_test, step 3)
+  postgres:
+    image: postgres:19.0-alpine
+    environment:
+      # local only: this password never leaves this computer
+      POSTGRES_USER: office
+      POSTGRES_PASSWORD: office
+      POSTGRES_DB: office
+    ports:
+      # 127.0.0.1: only this computer reaches it, not the rest of the lab's network
+      - "127.0.0.1:5432:5432"
+    volumes:
+      # the data outlives the container: docker compose down keeps it, down -v deletes it
+      - pgdata:/var/lib/postgresql
+      # run once, when the volume is still empty: creates office_test
+      - ./docker/postgres-init.sql:/docker-entrypoint-initdb.d/postgres-init.sql:ro
+    healthcheck:
+      # --wait waits for this: the server accepts connections
+      test: ["CMD-SHELL", "pg_isready -U office -d office"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+
+  # the mail catcher: every mail the app sends lands here, read at http://localhost:8025
+  mailpit:
+    image: axllent/mailpit:v1.34.0
+    ports:
+      - "127.0.0.1:1025:1025" # SMTP: the app sends here
+      - "127.0.0.1:8025:8025" # the inbox, in the browser
+
+volumes:
+  pgdata:
