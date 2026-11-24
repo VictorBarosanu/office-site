@@ -1,24 +1,34 @@
-// apps/server/src/testing.ts — what the tests share: a password, the fixture users, signing in
-import { WEB } from "./auth";
+// apps/server/src/testing.ts — helpers shared by the test files
+import { db } from "./db";
+import { users } from "./db/schema";
 import app from "./index";
 
-export const PASSWORD = "test-only-password"; // the seed's, for office_test only
-export const IRINA = "irina.matei@example.com"; // the admin
-export const ANDREI = "andrei.ionescu@example.com"; // a field worker
-export const MARIA = "maria.stan@example.com"; // another field worker
+export const PASSWORD = "dev-password";
+export const IRINA = "irina.matei@example.com";
+export const ANDREI = "andrei.ionescu@example.com";
+export const MARIA = "maria.stan@example.com";
+
+export const postJson = (body: unknown): RequestInit => ({
+  body: JSON.stringify(body),
+  headers: { "Content-Type": "application/json" },
+  method: "POST",
+});
+
+// the seed leaves every user unverified (real addresses don't exist in dev);
+// tests that don't care about the inbox call this after seed()
+export async function verifyEveryone() {
+  await db.update(users).set({ emailVerified: true });
+}
 
 // Better Auth's sign-in: POST /api/auth/sign-in/email
 export const signIn = (email: string, password = PASSWORD) =>
   app.request("/api/auth/sign-in/email", postJson({ email, password }));
 
-// the browser's part: every cookie the server set, ready to send back
+// the "name=value" part of Set-Cookie, which Cookie carries back
 export const cookieOf = (res: Response) =>
-  res.headers
-    .getSetCookie()
-    .map((cookie) => cookie.split(";")[0])
-    .join("; ");
+  (res.headers.get("set-cookie") ?? "").split(";")[0] ?? "";
 
-// a request as this user: their cookie on it
+// app.request() with one user's cookie on every call
 export const as =
   (cookie: string) =>
   (path: string, init: RequestInit = {}) =>
@@ -26,10 +36,3 @@ export const as =
       ...init,
       headers: { ...init.headers, Cookie: cookie },
     });
-
-// Origin: the browser sends it; Better Auth refuses a cookie-carrying POST from an unknown one
-export const postJson = (body: unknown): RequestInit => ({
-  body: JSON.stringify(body),
-  headers: { "Content-Type": "application/json", Origin: WEB },
-  method: "POST",
-});

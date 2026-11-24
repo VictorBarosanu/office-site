@@ -4,7 +4,14 @@ import type { Page } from "@office/shared";
 import { migrate } from "../scripts/migrate";
 import { seed } from "../scripts/seed";
 import app from "./index";
-import { as, cookieOf, IRINA, PASSWORD, signIn } from "./testing";
+import {
+  as,
+  cookieOf,
+  IRINA,
+  PASSWORD,
+  signIn,
+  verifyEveryone,
+} from "./testing";
 
 // what every 4xx and 5xx carries (RFC 9457); a 400 adds the field messages
 interface Problem {
@@ -25,6 +32,7 @@ const getPage = async (path: string) =>
 beforeAll(async () => {
   await migrate();
   await seed(PASSWORD);
+  await verifyEveryone();
   api = as(cookieOf(await signIn(IRINA)));
 });
 

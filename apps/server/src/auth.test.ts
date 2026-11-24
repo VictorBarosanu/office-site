@@ -14,6 +14,7 @@ import {
   PASSWORD,
   postJson,
   signIn,
+  verifyEveryone,
 } from "./testing";
 
 // better-auth.session_token=<token>.<signature>; then the attributes
@@ -31,6 +32,7 @@ const sessionOf = async (cookie: string) =>
 beforeAll(async () => {
   await migrate();
   await seed(PASSWORD);
+  await verifyEveryone();
 });
 
 test("the seed refuses to run without a password", async () => {

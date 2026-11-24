@@ -31,6 +31,18 @@ export const Route = createFileRoute("/sign-in")({
 });
 
 type Errors = Partial<Record<string, string[]>>;
+
+// Better Auth's refusals, in the office's words
+function messageOf(error: { message?: string; status: number }) {
+  if (error.status === 401) {
+    return "Wrong email or password";
+  }
+  if (error.status === 403) {
+    // the password was right; Better Auth has just mailed a verify link
+    return "Check your inbox: open the link we sent you to verify your email, then you're in.";
+  }
+  return error.message ?? "Sign-in failed";
+}
 const errorsOf = (messages: string[] | undefined) =>
   messages?.map((message) => ({ message }));
 
@@ -42,11 +54,13 @@ function SignInPage() {
   const signIn = useMutation({
     // Better Auth's client answers { data, error } and never throws: throw its error here
     mutationFn: async (body: SignIn) => {
-      const { error } = await authClient.signIn.email(body);
+      // callbackURL: where the verify link in the mail lands, signed in
+      const { error } = await authClient.signIn.email({
+        ...body,
+        callbackURL: `${window.location.origin}${redirect ?? "/"}`,
+      });
       if (error) {
-        const message =
-          error.status === 401 ? "Wrong email or password" : error.message;
-        throw new ApiError(message ?? "Sign-in failed", {}, error.status);
+        throw new ApiError(messageOf(error), {}, error.status);
       }
     },
     onError: (error) =>
