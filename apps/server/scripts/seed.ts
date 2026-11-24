@@ -21,6 +21,7 @@ import {
   surveys,
   users,
 } from "../src/db/schema";
+import { truncate } from "../src/db/truncate";
 
 // every fixture user signs in with this password: SEED_PASSWORD in apps/server/.env
 // the fixtures' ISO text, as the Dates a timestamp column takes
@@ -62,16 +63,18 @@ export async function seed(password: string | undefined) {
       userId: user.id,
     }))
   );
+  // every table empty first: one TRUNCATE, which also starts every test file that seeds
+  await truncate(
+    session,
+    account,
+    routeStops,
+    routes,
+    users,
+    surveys,
+    entrances,
+    buildings
+  );
   await db.transaction(async (tx) => {
-    // children first: a building cannot go while its entrances point at it
-    await tx.delete(session);
-    await tx.delete(account);
-    await tx.delete(routeStops);
-    await tx.delete(routes);
-    await tx.delete(users);
-    await tx.delete(surveys);
-    await tx.delete(entrances);
-    await tx.delete(buildings);
     await tx.insert(buildings).values(buildingList);
     await tx.insert(entrances).values(entranceList);
     await tx.insert(users).values(userList);
