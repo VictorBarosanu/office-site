@@ -11,6 +11,10 @@ import { sendMail } from "./mail";
 export const WEB = "http://localhost:5173";
 
 export const auth = betterAuth({
+  account: {
+    // a GitHub sign-in joins the user with the same verified email (both sides verified)
+    accountLinking: { enabled: true },
+  },
   // our own tables, under Better Auth's names: its "user" is our users
   database: drizzleAdapter(db, {
     provider: "pg",
@@ -57,6 +61,18 @@ export const auth = betterAuth({
         to: user.email,
       });
       return Promise.resolve();
+    },
+  },
+  socialProviders: {
+    // your own OAuth app on GitHub; its callback: BETTER_AUTH_URL/api/auth/callback/github
+    github: {
+      clientId: Bun.env.GITHUB_CLIENT_ID ?? "",
+      clientSecret: Bun.env.GITHUB_CLIENT_SECRET ?? "",
+      // still no open sign-up, and it takes both: disableImplicitSignUp refuses a stranger
+      // when the button asks only to sign in; disableSignUp refuses one even when the
+      // request says requestSignUp: true. GitHub never creates a user, it only signs one in
+      disableImplicitSignUp: true,
+      disableSignUp: true,
     },
   },
   trustedOrigins: [WEB],

@@ -24,9 +24,13 @@ export async function verifyEveryone() {
 export const signIn = (email: string, password = PASSWORD) =>
   app.request("/api/auth/sign-in/email", postJson({ email, password }));
 
-// the "name=value" part of Set-Cookie, which Cookie carries back
+// the "name=value" parts of every Set-Cookie, which Cookie carries back
 export const cookieOf = (res: Response) =>
-  (res.headers.get("set-cookie") ?? "").split(";")[0] ?? "";
+  res.headers
+    .getSetCookie()
+    .map((c) => c.split(";")[0] ?? "")
+    .filter(Boolean)
+    .join("; ");
 
 // app.request() with one user's cookie on every call
 export const as =

@@ -22,6 +22,8 @@ export const Route = createFileRoute("/sign-in")({
   // ?redirect=/buildings: where to go back to; only a path in this app: "/x" yes,
   // "//evil.example" (another site) and "/\evil" (browsers read \ as /) no
   validateSearch: z.object({
+    // Better Auth sends GitHub's refusals back here: ?error=signup_disabled, …
+    error: z.string().optional().catch(undefined),
     redirect: z
       .string()
       .regex(/^\/(?![/\\])/)
@@ -47,7 +49,7 @@ const errorsOf = (messages: string[] | undefined) =>
   messages?.map((message) => ({ message }));
 
 function SignInPage() {
-  const { redirect } = Route.useSearch();
+  const { error: githubError, redirect } = Route.useSearch();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [errors, setErrors] = useState<Errors>({});
@@ -71,6 +73,15 @@ function SignInPage() {
       await navigate({ href: redirect ?? "/" });
     },
   });
+
+  // GitHub signs in only someone already here, with the same verified email
+  function signInWithGitHub() {
+    authClient.signIn.social({
+      callbackURL: `${window.location.origin}${redirect ?? "/"}`,
+      errorCallbackURL: `${window.location.origin}/sign-in`,
+      provider: "github",
+    });
+  }
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -131,6 +142,17 @@ function SignInPage() {
               {signIn.isPending ? "Signing in…" : "Sign in"}
             </Button>
           </form>
+          <div className="mt-4 grid gap-2">
+            {githubError ? (
+              <p className="text-destructive text-sm" role="alert">
+                No one here has your GitHub email, verified. Sign in with your
+                password, or ask an admin to add you.
+              </p>
+            ) : null}
+            <Button onClick={signInWithGitHub} type="button" variant="outline">
+              Sign in with GitHub
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </main>
