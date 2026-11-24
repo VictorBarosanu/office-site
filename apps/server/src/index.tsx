@@ -185,6 +185,12 @@ app.get(
     },
   })
 );
-app.get("/api/docs", Scalar({ url: "/api/openapi.json" }));
-
+// the page's script pinned too, to the release of the package above (0.12.23 came with 1.82.0)
+app.get(
+  "/api/docs",
+  Scalar({
+    cdn: "https://cdn.jsdelivr.net/npm/@scalar/api-reference@1.82.0",
+    url: "/api/openapi.json",
+  })
+);
 export default app;

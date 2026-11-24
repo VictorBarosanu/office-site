@@ -3,7 +3,6 @@ import { beforeAll, expect, test } from "bun:test";
 import type { Page } from "@office/shared";
 import { migrate } from "../scripts/migrate";
 import { seed } from "../scripts/seed";
-import { db } from "./db";
 import app from "./index";
 import { as, cookieOf, IRINA, PASSWORD, signIn } from "./testing";
 
@@ -24,11 +23,8 @@ const getPage = async (path: string) =>
   (await (await api(path)).json()) as Page<{ id: string }>;
 
 beforeAll(async () => {
-  if (db.$client.filename !== ":memory:") {
-    throw new Error(`Refusing to test on ${db.$client.filename}`);
-  }
-  migrate();
-  seed(PASSWORD);
+  await migrate();
+  await seed(PASSWORD);
   api = as(cookieOf(await signIn(IRINA)));
 });
 
@@ -157,15 +153,34 @@ test("the search finds a building by a word of its label or its comment", async 
   expect((await search("courtyard")).total).toBe(1);
 });
 
-test("a miss is an empty page, and FTS5 syntax is only text", async () => {
+test("ș and ț fold too, both ways: Romanian typed with or without its letters", async () => {
+  await api("/api/buildings", {
+    body: JSON.stringify({
+      comment: "Lângă piață",
+      label: "Ștefan cel Mare 9",
+    }),
+    headers: { "Content-Type": "application/json" },
+    method: "POST",
+  });
+  expect((await search("stefan langa piata")).items[0]).toMatchObject({
+    label: "Ștefan cel Mare 9",
+  });
+  expect((await search("Ştefan")).total).toBe(1); // ş with a cedilla, an old keyboard's
+  expect((await search("piață")).total).toBe(1);
+});
+
+test("a miss is an empty page, and search syntax is never an error", async () => {
   expect(await search("zzz")).toMatchObject({ items: [], total: 0 });
   expect((await search('" OR * AND (')).total).toBe(0);
   expect((await search("!!!")).total).toBe(0);
+  // week 7's homework: FTS5 threw on a bare AND; here it is only a word, so a 200
+  const strada = await api("/api/buildings/search?q=strada%20AND");
+  expect(strada.status).toBe(200);
   const empty = await api("/api/buildings/search?q=");
   expect(empty.status).toBe(400);
 });
 
-test("a new building is found at once: the trigger indexed it", async () => {
+test("a new building is found at once: Postgres filled its search column", async () => {
   await api("/api/buildings", {
     body: JSON.stringify({ comment: "Behind the market", label: "Obor 3" }),
     headers: { "Content-Type": "application/json" },

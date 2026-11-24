@@ -38,14 +38,14 @@ surveysApi.get(
     summary: "List the surveys",
     tags: ["surveys"],
   }),
-  (c) => {
+  async (c) => {
     const page = PageQuery.safeParse(c.req.query());
     if (!page.success) {
       return problem(c, 400, "limit is 1 to 100, offset 0 or more", {
         errors: fieldErrors(page.error),
       });
     }
-    return c.json(listSurveys(page.data, c.req.query("entranceId")));
+    return c.json(await listSurveys(page.data, c.req.query("entranceId")));
   }
 );
 
@@ -69,7 +69,7 @@ surveysApi.post(
       });
     }
     try {
-      return c.json(createSurvey(result.data), 201);
+      return c.json(await createSurvey(result.data), 201);
     } catch (error) {
       if (isForeignKeyError(error)) {
         return problem(c, 400, "The survey is not valid", {

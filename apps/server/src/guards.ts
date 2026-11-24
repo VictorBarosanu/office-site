@@ -13,7 +13,7 @@ export interface SignedIn {
 // 401: no session, or an expired one
 export const requireUser = createMiddleware<SignedIn>(async (c, next) => {
   const token = getCookie(c, "session");
-  const user = token ? findSessionUser(token) : undefined;
+  const user = token ? await findSessionUser(token) : undefined;
   if (!user) {
     return problem(c, 401, "Sign in first");
   }

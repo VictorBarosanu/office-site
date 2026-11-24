@@ -4,24 +4,27 @@ import { asc, count, eq } from "drizzle-orm";
 import { db } from "../db";
 import { surveys } from "./schema";
 
-export function listSurveys(
+// no timestamps here: surveyedOn is a date, and mode "string" gives it back as 2026-11-25
+export async function listSurveys(
   { limit, offset }: PageQuery,
   entranceId?: string
-): Page<Survey> {
+): Promise<Page<Survey>> {
   const where = entranceId ? eq(surveys.entranceId, entranceId) : undefined;
-  const items = db
+  const items = await db
     .select()
     .from(surveys)
     .where(where)
     .orderBy(asc(surveys.surveyedOn), asc(surveys.id))
     .limit(limit)
-    .offset(offset)
-    .all();
-  const total =
-    db.select({ n: count() }).from(surveys).where(where).get()?.n ?? 0;
-  return { items, limit, offset, total };
+    .offset(offset);
+  const [counted] = await db.select({ n: count() }).from(surveys).where(where);
+  return { items, limit, offset, total: counted?.n ?? 0 };
 }
 
-export function createSurvey(survey: NewSurvey): Survey {
-  return db.insert(surveys).values(survey).returning().get();
+export async function createSurvey(survey: NewSurvey): Promise<Survey> {
+  const [created] = await db.insert(surveys).values(survey).returning();
+  if (!created) {
+    throw new Error("INSERT … RETURNING gave back no row");
+  }
+  return created;
 }

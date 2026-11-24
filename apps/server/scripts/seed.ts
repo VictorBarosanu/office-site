@@ -23,50 +23,66 @@ import {
 } from "../src/db/schema";
 
 // every fixture user signs in with this password: SEED_PASSWORD in apps/server/.env
-export function seed(password: string | undefined) {
+// the fixtures' ISO text, as the Dates a timestamp column takes
+const at = <T extends { createdAt: string; updatedAt: string }>(row: T) => ({
+  ...row,
+  createdAt: new Date(row.createdAt),
+  updatedAt: new Date(row.updatedAt),
+});
+
+export async function seed(password: string | undefined) {
   if (!password || password.length < 8) {
     throw new Error(
       "Set SEED_PASSWORD (8 characters or more) in apps/server/.env: copy .env.example"
     );
   }
   // the contract checks its own fixtures before they go in
-  const buildingList = Building.array().parse(buildingRows);
-  const entranceList = Entrance.array().parse(entranceRows);
+  const buildingList = Building.array().parse(buildingRows).map(at);
+  const entranceList = Entrance.array()
+    .parse(entranceRows)
+    .map((entrance) => ({
+      ...at(entrance),
+      surveyedAt: entrance.surveyedAt ? new Date(entrance.surveyedAt) : null,
+    }));
   // emails are stored lowercase: sign-in lowercases what it is given
   const userList = User.array()
     .parse(userRows)
-    .map((user) => ({ ...user, email: user.email.toLowerCase() }));
+    .map((user) => ({ ...at(user), email: user.email.toLowerCase() }));
   // a fixture route holds its stops: Route drops them, so parse them apart
-  const routeList = Route.array().parse(routeRows);
-  const stopList = RouteStop.array().parse(routeRows.flatMap((r) => r.stops));
-  // a hash per user: argon2id, with its own salt (hashSync: the transaction below is sync)
-  const accounts = userList.map((user) => ({
-    accountId: user.id,
-    password: Bun.password.hashSync(password),
-    providerId: "credential",
-    userId: user.id,
-  }));
-  db.transaction((tx) => {
+  const routeList = Route.array().parse(routeRows).map(at);
+  const stopList = RouteStop.array()
+    .parse(routeRows.flatMap((r) => r.stops))
+    .map(at);
+  // a hash per user: argon2id, with its own salt
+  const accounts = await Promise.all(
+    userList.map(async (user) => ({
+      accountId: user.id,
+      password: await Bun.password.hash(password),
+      providerId: "credential",
+      userId: user.id,
+    }))
+  );
+  await db.transaction(async (tx) => {
     // children first: a building cannot go while its entrances point at it
-    tx.delete(session).run();
-    tx.delete(account).run();
-    tx.delete(routeStops).run();
-    tx.delete(routes).run();
-    tx.delete(users).run();
-    tx.delete(surveys).run();
-    tx.delete(entrances).run();
-    tx.delete(buildings).run();
-    tx.insert(buildings).values(buildingList).run();
-    tx.insert(entrances).values(entranceList).run();
-    tx.insert(users).values(userList).run();
-    tx.insert(account).values(accounts).run();
-    tx.insert(routes).values(routeList).run();
-    tx.insert(routeStops).values(stopList).run();
+    await tx.delete(session);
+    await tx.delete(account);
+    await tx.delete(routeStops);
+    await tx.delete(routes);
+    await tx.delete(users);
+    await tx.delete(surveys);
+    await tx.delete(entrances);
+    await tx.delete(buildings);
+    await tx.insert(buildings).values(buildingList);
+    await tx.insert(entrances).values(entranceList);
+    await tx.insert(users).values(userList);
+    await tx.insert(account).values(accounts);
+    await tx.insert(routes).values(routeList);
+    await tx.insert(routeStops).values(stopList);
   });
 }
 
 if (import.meta.main) {
-  seed(Bun.env.SEED_PASSWORD);
+  await seed(Bun.env.SEED_PASSWORD);
   console.log({
     accounts: await db.$count(account),
     buildings: await db.$count(buildings),
@@ -77,4 +93,6 @@ if (import.meta.main) {
     surveys: await db.$count(surveys),
     users: await db.$count(users),
   });
+  // the pool keeps the process alive until it is closed
+  await db.$client.end();
 }

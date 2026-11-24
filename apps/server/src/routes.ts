@@ -28,7 +28,7 @@ routesApi.get(
     summary: "List the routes",
     tags: ["routes"],
   }),
-  (c) => c.json(listRoutes(workerOf(c.get("user"))))
+  async (c) => c.json(await listRoutes(workerOf(c.get("user"))))
 );
 
 // another worker's route answers 404, not 403: a field worker does not learn it exists
@@ -42,8 +42,8 @@ routesApi.get(
     summary: "One route",
     tags: ["routes"],
   }),
-  (c) => {
-    const route = getRoute(c.req.param("id"), workerOf(c.get("user")));
+  async (c) => {
+    const route = await getRoute(c.req.param("id"), workerOf(c.get("user")));
     return route ? c.json(route) : problem(c, 404, "No such route");
   }
 );
@@ -68,7 +68,7 @@ routesApi.post(
       });
     }
     try {
-      return c.json(createRoute(result.data, c.get("user").id), 201);
+      return c.json(await createRoute(result.data, c.get("user").id), 201);
     } catch (error) {
       // an unknown worker or entrance: the foreign keys refuse the whole route
       if (isForeignKeyError(error)) {

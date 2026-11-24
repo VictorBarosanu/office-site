@@ -1,72 +1,103 @@
 // apps/server/src/db/schema.ts — the tables in TypeScript; drizzle-kit writes the SQL
 // biome-ignore-all assist/source/useSortedKeys: the order of the keys is the order of the columns
 
-import { integer, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { sql } from "drizzle-orm";
+import {
+  boolean,
+  customType,
+  date,
+  doublePrecision,
+  index,
+  integer,
+  pgTable,
+  text,
+  timestamp,
+} from "drizzle-orm/pg-core";
 import type {
   Role,
   StopStatus,
   SurveyStatus,
 } from "field-app-contract/contract";
 
-const now = () => new Date().toISOString();
+// an instant: Postgres keeps it in UTC, Drizzle gives back a JavaScript Date
+const instant = () => timestamp({ mode: "date", withTimezone: true });
 
-// every contract entity has these three: a UUID and two ISO timestamps
+// every contract entity has these three: a UUID and two timestamps
 const row = {
   id: text()
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
-  createdAt: text().notNull().$defaultFn(now),
-  updatedAt: text().notNull().$defaultFn(now).$onUpdateFn(now),
+  createdAt: instant().notNull().defaultNow(),
+  updatedAt: instant()
+    .notNull()
+    .defaultNow()
+    .$onUpdateFn(() => new Date()),
 };
 
-// the contract's Building, field for field
-export const buildings = sqliteTable("buildings", {
-  ...row,
-  label: text().notNull(),
-  comment: text(),
+// Postgres's search type, which Drizzle has no helper for: the words of a text, normalised
+const tsvector = customType<{ data: string }>({
+  dataType: () => "tsvector",
 });
 
+// the contract's Building, field for field, and the words the search looks in
+export const buildings = pgTable(
+  "buildings",
+  {
+    ...row,
+    label: text().notNull(),
+    comment: text(),
+    // Postgres keeps it up to date on every write; 'office' is the migration's own configuration:
+    // no English stemming of Romanian, and no accents ("franceza" is "franceză")
+    search: tsvector().generatedAlwaysAs(
+      sql`to_tsvector('office', label || ' ' || coalesce(comment, ''))`
+    ),
+  },
+  (table) => [index("buildings_search_idx").using("gin", table.search)]
+);
+
 // the contract's Entrance: the office's placement, then the surveyed fields
-export const entrances = sqliteTable("entrances", {
+export const entrances = pgTable("entrances", {
   ...row,
   buildingId: text()
     .notNull()
     .references(() => buildings.id),
-  lat: real().notNull(),
-  lng: real().notNull(),
+  // double precision: real would keep only 6 or 7 digits of a coordinate
+  lat: doublePrecision().notNull(),
+  lng: doublePrecision().notNull(),
   street: text().notNull(),
   number: text().notNull(),
   entranceName: text().notNull(),
-  // SQLite has no boolean: Drizzle stores 0/1 and gives back false/true
-  coordsConfirmed: integer({ mode: "boolean" }).notNull().default(false),
-  correctedLat: real(),
-  correctedLng: real(),
-  addressConfirmed: integer({ mode: "boolean" }).notNull().default(false),
+  // Postgres has a real boolean
+  coordsConfirmed: boolean().notNull().default(false),
+  correctedLat: doublePrecision(),
+  correctedLng: doublePrecision(),
+  addressConfirmed: boolean().notNull().default(false),
   stories: integer(),
   flats: integer(),
   elevators: integer(),
   yearBuilt: integer(),
-  groundFloorCommercial: integer({ mode: "boolean" }),
+  groundFloorCommercial: boolean(),
   comment: text(),
   // the type only: the contract's enum checks the value at the edge
   surveyStatus: text().$type<SurveyStatus>().notNull().default("not_started"),
   surveyedBy: text(),
-  surveyedAt: text(),
+  surveyedAt: instant(),
 });
 
 // not in the contract: the office's own visits to an entrance
-export const surveys = sqliteTable("surveys", {
+export const surveys = pgTable("surveys", {
   id: row.id,
   entranceId: text()
     .notNull()
     .references(() => entrances.id),
-  surveyedOn: text().notNull(),
+  // a day, not an instant: mode "string" keeps the contract's 2026-11-25
+  surveyedOn: date({ mode: "string" }).notNull(),
   surveyor: text().notNull(),
   notes: text(),
 });
 
 // the contract's User: the office's admins and the field workers
-export const users = sqliteTable("users", {
+export const users = pgTable("users", {
   ...row,
   role: text().$type<Role>().notNull(),
   name: text().notNull(),
@@ -74,7 +105,7 @@ export const users = sqliteTable("users", {
 });
 
 // the contract's Route: an admin gives a field worker a day's entrances
-export const routes = sqliteTable("routes", {
+export const routes = pgTable("routes", {
   ...row,
   adminId: text()
     .notNull()
@@ -82,12 +113,12 @@ export const routes = sqliteTable("routes", {
   workerId: text()
     .notNull()
     .references(() => users.id),
-  date: text().notNull(),
+  date: date({ mode: "string" }).notNull(),
   name: text().notNull(),
 });
 
 // the contract's RouteStop: one entrance of a route, in the order to visit it
-export const routeStops = sqliteTable("route_stops", {
+export const routeStops = pgTable("route_stops", {
   ...row,
   routeId: text()
     .notNull()
@@ -100,8 +131,8 @@ export const routeStops = sqliteTable("route_stops", {
 });
 
 // Better Auth's account table, the names we'll keep: a password is a "credential"
-// account, its accountId the user's id; timestamps as Better Auth stores them in SQLite
-export const account = sqliteTable("account", {
+// account, its accountId the user's id
+export const account = pgTable("account", {
   id: row.id,
   userId: text()
     .notNull()
@@ -110,30 +141,20 @@ export const account = sqliteTable("account", {
   providerId: text().notNull(),
   // the Bun.password hash (argon2id), never the password
   password: text(),
-  createdAt: integer({ mode: "timestamp_ms" })
-    .notNull()
-    .$defaultFn(() => new Date()),
-  updatedAt: integer({ mode: "timestamp_ms" })
-    .notNull()
-    .$defaultFn(() => new Date())
-    .$onUpdateFn(() => new Date()),
+  createdAt: row.createdAt,
+  updatedAt: row.updatedAt,
 });
 
 // Better Auth's session table: the token is the cookie's value; signing out deletes the row
-export const session = sqliteTable("session", {
+export const session = pgTable("session", {
   id: row.id,
   token: text().notNull().unique(),
   userId: text()
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-  expiresAt: integer({ mode: "timestamp_ms" }).notNull(),
+  expiresAt: instant().notNull(),
   ipAddress: text(),
   userAgent: text(),
-  createdAt: integer({ mode: "timestamp_ms" })
-    .notNull()
-    .$defaultFn(() => new Date()),
-  updatedAt: integer({ mode: "timestamp_ms" })
-    .notNull()
-    .$defaultFn(() => new Date())
-    .$onUpdateFn(() => new Date()),
+  createdAt: row.createdAt,
+  updatedAt: row.updatedAt,
 });

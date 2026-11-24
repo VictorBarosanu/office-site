@@ -50,14 +50,14 @@ authApi.post(
       });
     }
     const { email, password } = result.data;
-    const found = findCredential(email);
+    const found = await findCredential(email);
     const ok = await Bun.password.verify(password, found?.hash ?? NO_SUCH_USER);
     // one answer for both mistakes: nobody learns which emails have an account
     if (!(ok && found)) {
       return problem(c, 401, "Wrong email or password");
     }
     const token = newToken();
-    createSession({
+    await createSession({
       expiresAt: new Date(Date.now() + SESSION_SECONDS * 1000),
       ipAddress: getConnInfo(c).remote.address ?? null,
       token,
@@ -88,9 +88,9 @@ authApi.get(
     summary: "Who is signed in",
     tags: ["auth"],
   }),
-  (c) => {
+  async (c) => {
     const token = getCookie(c, "session");
-    const user = token ? findSessionUser(token) : undefined;
+    const user = token ? await findSessionUser(token) : undefined;
     return user ? c.json(user) : problem(c, 401, "Sign in first");
   }
 );
@@ -103,10 +103,10 @@ authApi.post(
     summary: "Sign out",
     tags: ["auth"],
   }),
-  (c) => {
+  async (c) => {
     const token = getCookie(c, "session");
     if (token) {
-      deleteSession(token);
+      await deleteSession(token);
     }
     deleteCookie(c, "session", { path: "/" });
     return c.body(null, 204);

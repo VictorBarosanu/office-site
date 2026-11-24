@@ -38,14 +38,14 @@ buildingsApi.get(
     summary: "List the buildings",
     tags: ["buildings"],
   }),
-  (c) => {
+  async (c) => {
     const page = PageQuery.safeParse(c.req.query());
     if (!page.success) {
       return problem(c, 400, "limit is 1 to 100, offset 0 or more", {
         errors: fieldErrors(page.error),
       });
     }
-    return c.json(listBuildings(page.data));
+    return c.json(await listBuildings(page.data));
   }
 );
 
@@ -64,7 +64,7 @@ buildingsApi.get(
     summary: "Search the buildings' labels and comments",
     tags: ["buildings"],
   }),
-  (c) => {
+  async (c) => {
     const page = PageQuery.safeParse(c.req.query());
     if (!page.success) {
       return problem(c, 400, "limit is 1 to 100, offset 0 or more", {
@@ -81,7 +81,7 @@ buildingsApi.get(
     const match = toMatchQuery(q);
     return c.json(
       match
-        ? searchBuildings(match, page.data)
+        ? await searchBuildings(match, page.data)
         : { items: [], ...page.data, total: 0 }
     );
   }
@@ -106,7 +106,7 @@ buildingsApi.post(
         errors: fieldErrors(result.error),
       });
     }
-    return c.json(createBuilding(result.data), 201);
+    return c.json(await createBuilding(result.data), 201);
   }
 );
 
@@ -122,9 +122,9 @@ buildingsApi.delete(
     summary: "Delete a building",
     tags: ["buildings"],
   }),
-  (c) => {
+  async (c) => {
     try {
-      if (deleteBuilding(c.req.param("id")) === 0) {
+      if ((await deleteBuilding(c.req.param("id"))) === 0) {
         return problem(c, 404, "No such building");
       }
       return c.body(null, 204);

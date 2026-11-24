@@ -29,9 +29,9 @@ usersApi.get(
     summary: "List the users",
     tags: ["users"],
   }),
-  (c) => {
+  async (c) => {
     const role = Role.safeParse(c.req.query("role"));
-    return c.json(listUsers(role.success ? role.data : undefined));
+    return c.json(await listUsers(role.success ? role.data : undefined));
   }
 );
 
@@ -58,7 +58,7 @@ usersApi.post(
     }
     const hash = await Bun.password.hash(result.data.password);
     try {
-      return c.json(createUser(result.data, hash), 201);
+      return c.json(await createUser(result.data, hash), 201);
     } catch (error) {
       if (isUniqueError(error)) {
         return problem(c, 409, "The email is taken", {

@@ -45,14 +45,14 @@ entrancesApi.get(
     summary: "List or search the entrances",
     tags: ["entrances"],
   }),
-  (c) => {
+  async (c) => {
     const page = PageQuery.safeParse(c.req.query());
     if (!page.success) {
       return problem(c, 400, "limit is 1 to 100, offset 0 or more", {
         errors: fieldErrors(page.error),
       });
     }
-    return c.json(listEntrances(page.data, c.req.query("q")));
+    return c.json(await listEntrances(page.data, c.req.query("q")));
   }
 );
 
@@ -67,8 +67,8 @@ entrancesApi.get(
     summary: "One entrance",
     tags: ["entrances"],
   }),
-  (c) => {
-    const entrance = getEntrance(c.req.param("id"));
+  async (c) => {
+    const entrance = await getEntrance(c.req.param("id"));
     return entrance ? c.json(entrance) : problem(c, 404, "No such entrance");
   }
 );
@@ -93,7 +93,7 @@ entrancesApi.post(
       });
     }
     try {
-      return c.json(createEntrance(result.data), 201);
+      return c.json(await createEntrance(result.data), 201);
     } catch (error) {
       // the schema cannot know which buildings exist; the foreign key does
       if (isForeignKeyError(error)) {
@@ -118,9 +118,9 @@ entrancesApi.delete(
     summary: "Delete an entrance",
     tags: ["entrances"],
   }),
-  (c) => {
+  async (c) => {
     try {
-      if (deleteEntrance(c.req.param("id")) === 0) {
+      if ((await deleteEntrance(c.req.param("id"))) === 0) {
         return problem(c, 404, "No such entrance");
       }
       return c.body(null, 204);

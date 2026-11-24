@@ -1,25 +1,21 @@
-// apps/server/src/db/routes.test.ts — routes and their stops against a :memory: database
+// apps/server/src/db/routes.test.ts — routes and their stops against office_test
 import { beforeAll, expect, test } from "bun:test";
 import { Route, RouteStop } from "field-app-contract/contract";
 import { migrate } from "../../scripts/migrate";
 import { seed } from "../../scripts/seed";
-import { db } from "../db";
 import { createRoute, listRoutes } from "./routes";
 
 const ANDREI = "26bc4094-d586-4223-9561-ef242d835677"; // a field worker, a fixture
 const IRINA = "7d07e973-eebc-44b1-b7cd-bd1cd2fff3c5"; // the admin, a fixture
 const LIPSCANI_A = "2511ddfb-2828-46f5-b23c-39501d862310"; // an entrance, a fixture
 
-beforeAll(() => {
-  if (db.$client.filename !== ":memory:") {
-    throw new Error(`Refusing to test on ${db.$client.filename}`);
-  }
-  migrate();
-  seed("test-only-password");
+beforeAll(async () => {
+  await migrate();
+  await seed("test-only-password");
 });
 
-test("the seed brings the contract's 2 routes back with their stops in order", () => {
-  const listed = listRoutes();
+test("the seed brings the contract's 2 routes back with their stops in order", async () => {
+  const listed = await listRoutes();
   expect(listed).toHaveLength(2);
   for (const route of listed) {
     expect(Route.parse(route)).toBeDefined();
@@ -29,8 +25,8 @@ test("the seed brings the contract's 2 routes back with their stops in order", (
   }
 });
 
-test("a new route is assigned by the admin, its stops numbered from 1", () => {
-  const created = createRoute(
+test("a new route is assigned by the admin, its stops numbered from 1", async () => {
+  const created = await createRoute(
     {
       date: "2026-11-12",
       entranceIds: [LIPSCANI_A],
@@ -48,9 +44,9 @@ test("a new route is assigned by the admin, its stops numbered from 1", () => {
   });
 });
 
-test("an unknown entrance refuses the whole route, stops and all", () => {
-  const before = listRoutes().length;
-  expect(() =>
+test("an unknown entrance refuses the whole route, stops and all", async () => {
+  const before = (await listRoutes()).length;
+  await expect(
     createRoute(
       {
         date: "2026-11-12",
@@ -60,6 +56,6 @@ test("an unknown entrance refuses the whole route, stops and all", () => {
       },
       IRINA
     )
-  ).toThrow();
-  expect(listRoutes()).toHaveLength(before);
+  ).rejects.toThrow();
+  expect(await listRoutes()).toHaveLength(before);
 });

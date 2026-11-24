@@ -1,5 +1,6 @@
 // apps/server/src/auth.test.ts — signing in and out, end to end through app.request()
 import { beforeAll, expect, test } from "bun:test";
+import { sql } from "drizzle-orm";
 import { migrate } from "../scripts/migrate";
 import { seed } from "../scripts/seed";
 import { db } from "./db";
@@ -11,24 +12,20 @@ const SESSION_COOKIE = /^session=[\w-]{43}; /;
 
 const withCookie = (res: Response) => ({ headers: { Cookie: cookieOf(res) } });
 
-beforeAll(() => {
-  if (db.$client.filename !== ":memory:") {
-    throw new Error(`Refusing to test on ${db.$client.filename}`);
-  }
-  migrate();
-  seed(PASSWORD);
+beforeAll(async () => {
+  await migrate();
+  await seed(PASSWORD);
 });
 
-test("the seed refuses to run without a password", () => {
-  expect(() => seed(undefined)).toThrow("SEED_PASSWORD");
+test("the seed refuses to run without a password", async () => {
+  await expect(seed(undefined)).rejects.toThrow("SEED_PASSWORD");
 });
 
-test("the seed stores a hash, never the password", () => {
-  const { password } = db.$client
-    .query<{ password: string }, []>(
-      "SELECT password FROM account WHERE provider_id = 'credential' LIMIT 1"
-    )
-    .get() ?? { password: "" };
+test("the seed stores a hash, never the password", async () => {
+  const { rows } = await db.execute<{ password: string }>(
+    sql`SELECT password FROM account WHERE provider_id = 'credential' LIMIT 1`
+  );
+  const password = rows[0]?.password ?? "";
   expect(password).toStartWith("$argon2id$");
   expect(password).not.toContain(PASSWORD);
 });

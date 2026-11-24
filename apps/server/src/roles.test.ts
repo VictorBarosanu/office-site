@@ -2,7 +2,6 @@
 import { beforeAll, expect, test } from "bun:test";
 import { migrate } from "../scripts/migrate";
 import { seed } from "../scripts/seed";
-import { db } from "./db";
 import app from "./index";
 import {
   ANDREI,
@@ -21,11 +20,8 @@ let admin: ReturnType<typeof as>;
 let andrei: ReturnType<typeof as>;
 
 beforeAll(async () => {
-  if (db.$client.filename !== ":memory:") {
-    throw new Error(`Refusing to test on ${db.$client.filename}`);
-  }
-  migrate();
-  seed(PASSWORD);
+  await migrate();
+  await seed(PASSWORD);
   admin = as(cookieOf(await signIn(IRINA)));
   andrei = as(cookieOf(await signIn(ANDREI)));
 });

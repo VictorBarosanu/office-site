@@ -1,40 +1,12 @@
 {
   "version": "7",
-  "dialect": "sqlite",
+  "dialect": "postgresql",
   "entries": [
     {
       "idx": 0,
-      "version": "6",
-      "when": 1794351380360,
-      "tag": "0000_the-contract",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1794410170366,
-      "tag": "0001_routes-and-users",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "6",
-      "when": 1795391686909,
-      "tag": "0002_buildings-search",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "6",
-      "when": 1795392738104,
-      "tag": "0003_accounts",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "6",
-      "when": 1795393857167,
-      "tag": "0004_sessions",
+      "version": "7",
+      "when": 1795515997203,
+      "tag": "0000_postgres",
       "breakpoints": true
     }
   ]
