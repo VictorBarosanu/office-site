@@ -1,8 +1,8 @@
 // apps/server/src/guards.ts — the two checks every protected route makes: who are you, may you
-import type { Role, User } from "field-app-contract/contract";
-import { getCookie } from "hono/cookie";
+import { type Role, User } from "field-app-contract/contract";
 import { createMiddleware } from "hono/factory";
-import { findSessionUser } from "./db/auth";
+import { auth } from "./auth";
+import { iso } from "./db/iso";
 import { problem } from "./problem";
 
 // what a handler behind requireUser can read: c.get("user")
@@ -10,14 +10,14 @@ export interface SignedIn {
   Variables: { user: User };
 }
 
-// 401: no session, or an expired one
+// 401: no session, or an expired one; Better Auth reads the cookie and the session row
 export const requireUser = createMiddleware<SignedIn>(async (c, next) => {
-  const token = getCookie(c, "session");
-  const user = token ? await findSessionUser(token) : undefined;
-  if (!user) {
+  const signedIn = await auth.api.getSession({ headers: c.req.raw.headers });
+  if (!signedIn) {
     return problem(c, 401, "Sign in first");
   }
-  c.set("user", user);
+  // Better Auth's user as the contract's: ISO timestamps, only the contract's fields
+  c.set("user", User.parse(iso(signedIn.user)));
   await next();
 });
 

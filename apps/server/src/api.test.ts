@@ -110,9 +110,6 @@ test("the OpenAPI document describes every API path", async () => {
   };
   expect(doc.openapi).toStartWith("3.");
   expect(Object.keys(doc.paths).sort()).toEqual([
-    "/api/auth/me",
-    "/api/auth/sign-in",
-    "/api/auth/sign-out",
     "/api/buildings",
     "/api/buildings/search",
     "/api/buildings/{id}",

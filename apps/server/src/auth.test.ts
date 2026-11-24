@@ -1,16 +1,32 @@
-// apps/server/src/auth.test.ts — signing in and out, end to end through app.request()
+// apps/server/src/auth.test.ts — signing in and out through Better Auth, end to end with app.request()
 import { beforeAll, expect, test } from "bun:test";
-import { sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { migrate } from "../scripts/migrate";
 import { seed } from "../scripts/seed";
 import { db } from "./db";
+import { account, users } from "./db/schema";
 import app from "./index";
-import { cookieOf, IRINA, PASSWORD, signIn } from "./testing";
+import {
+  ANDREI,
+  as,
+  cookieOf,
+  IRINA,
+  PASSWORD,
+  postJson,
+  signIn,
+} from "./testing";
 
-// session=<32 random bytes, base64url>; then the attributes
-const SESSION_COOKIE = /^session=[\w-]{43}; /;
+// better-auth.session_token=<token>.<signature>; then the attributes
+const SESSION_COOKIE = /^better-auth\.session_token=[^;]+; /;
 
-const withCookie = (res: Response) => ({ headers: { Cookie: cookieOf(res) } });
+// a hash week 7's sign-in wrote (Bun.password.hashSync("test-only-password")), byte for byte
+const WEEK_7_HASH =
+  "$argon2id$v=19$m=65536,t=2,p=1$I5lcrETlbCX1YickK4oUSXBOn09vErdax1O532zBtwg$7CR97dEw/7aNMSbT3ckCtQHiCvZz5hBvUkI4FmBffUs";
+
+const sessionOf = async (cookie: string) =>
+  (await (await as(cookie)("/api/auth/get-session")).json()) as {
+    user: { email: string; role: string };
+  } | null;
 
 beforeAll(async () => {
   await migrate();
@@ -30,28 +46,37 @@ test("the seed stores a hash, never the password", async () => {
   expect(password).not.toContain(PASSWORD);
 });
 
-test("the right password signs in: an HttpOnly, SameSite=Lax cookie and the user", async () => {
-  const res = await signIn(IRINA, PASSWORD);
+test("the right password signs in: Better Auth's HttpOnly, SameSite=Lax cookie and the user", async () => {
+  const res = await signIn(IRINA);
   expect(res.status).toBe(200);
-  expect(((await res.json()) as { role: string }).role).toBe("admin");
+  const body = (await res.json()) as { user: { role: string } };
+  expect(body.user.role).toBe("admin");
   const cookie = res.headers.get("set-cookie") ?? "";
   expect(cookie).toMatch(SESSION_COOKIE);
   expect(cookie).toContain("HttpOnly");
   expect(cookie).toContain("SameSite=Lax");
-  expect(cookie).not.toContain("Secure"); // only in production: localhost is http
-  const me = await app.request("/api/auth/me", withCookie(res));
-  expect(((await me.json()) as { email: string }).email).toBe(IRINA);
+  expect(cookie).not.toContain("Secure"); // only on https: localhost is http
+  expect((await sessionOf(cookieOf(res)))?.user.email).toBe(IRINA);
 });
 
-test("the email's case and spaces do not matter", async () => {
-  const res = await signIn(` ${IRINA.toUpperCase()} `, PASSWORD);
+test("a hash week 7 wrote signs in unchanged: Bun.password verifies it", async () => {
+  const [andrei] = await db.select().from(users).where(eq(users.email, ANDREI));
+  await db
+    .update(account)
+    .set({ password: WEEK_7_HASH })
+    .where(eq(account.userId, andrei?.id ?? ""));
+  const res = await signIn(ANDREI, "test-only-password");
   expect(res.status).toBe(200);
-  expect(((await res.json()) as { email: string }).email).toBe(IRINA);
+});
+
+test("the email's case does not matter", async () => {
+  const res = await signIn(IRINA.toUpperCase());
+  expect(res.status).toBe(200);
 });
 
 test("a wrong password is a 401, and so is an unknown email, word for word", async () => {
   const wrong = await signIn(IRINA, "not-the-password");
-  const unknown = await signIn("nobody@example.com", PASSWORD);
+  const unknown = await signIn("nobody@example.com");
   expect(wrong.status).toBe(401);
   expect(unknown.status).toBe(401);
   // the same answer: nobody learns which emails have an account
@@ -59,35 +84,28 @@ test("a wrong password is a 401, and so is an unknown email, word for word", asy
   expect(wrong.headers.get("set-cookie")).toBeNull();
 });
 
-test("no cookie, or a made-up one, is a 401", async () => {
-  expect((await app.request("/api/auth/me")).status).toBe(401);
-  const madeUp = await app.request("/api/auth/me", {
-    headers: { Cookie: "session=made-up" },
-  });
-  expect(madeUp.status).toBe(401);
+test("no cookie, or a made-up one, is nobody: no session, and the API answers 401", async () => {
+  expect(await sessionOf("")).toBeNull();
+  const madeUp = "better-auth.session_token=made-up";
+  expect(await sessionOf(madeUp)).toBeNull();
+  expect((await as(madeUp)("/api/buildings")).status).toBe(401);
 });
 
-test("sign-out deletes the session: the same cookie is a 401 after", async () => {
-  const signedIn = await signIn(IRINA, PASSWORD);
-  const cookie = withCookie(signedIn);
-  expect((await app.request("/api/auth/me", cookie)).status).toBe(200);
-  const out = await app.request("/api/auth/sign-out", {
-    ...cookie,
-    method: "POST",
-  });
-  expect(out.status).toBe(204);
+test("sign-out deletes the session: the same cookie opens nothing after", async () => {
+  const cookie = cookieOf(await signIn(IRINA));
+  expect((await as(cookie)("/api/buildings")).status).toBe(200);
+  const out = await as(cookie)("/api/auth/sign-out", postJson({}));
+  expect(out.status).toBe(200);
   expect(out.headers.get("set-cookie")).toContain("Max-Age=0");
   // a copy of the cookie kept from before is worth nothing now
-  expect((await app.request("/api/auth/me", cookie)).status).toBe(401);
+  expect(await sessionOf(cookie)).toBeNull();
+  expect((await as(cookie)("/api/buildings")).status).toBe(401);
 });
 
-test("the OpenAPI document says sign-in answers the user alone: the token is in the cookie", async () => {
-  const doc = await (await app.request("/api/openapi.json")).text();
-  const signInDoc = JSON.stringify(
-    (JSON.parse(doc) as { paths: Record<string, unknown> }).paths[
-      "/api/auth/sign-in"
-    ]
+test("there is no sign-up: an admin adds people", async () => {
+  const res = await app.request(
+    "/api/auth/sign-up/email",
+    postJson({ email: "me@example.com", name: "Me", password: "my-password" })
   );
-  expect(signInDoc).toContain('"email"');
-  expect(signInDoc).not.toContain('"token"');
+  expect(res.status).toBe(400);
 });

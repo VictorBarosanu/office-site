@@ -9,7 +9,7 @@ import {
 } from "@tanstack/react-router";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { signOut } from "../api";
+import { authClient } from "../auth-client";
 import { meQuery } from "../queries";
 
 export const Route = createFileRoute("/_authed")({
@@ -37,7 +37,8 @@ function Authed() {
   const navigate = useNavigate();
 
   async function handleSignOut() {
-    await signOut();
+    // Better Auth deletes the session row and clears the cookie
+    await authClient.signOut();
     // the next person at this computer must not see this one's cached data
     queryClient.clear();
     await navigate({ to: "/sign-in" });

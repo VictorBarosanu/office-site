@@ -10,6 +10,7 @@ import type {
   User,
 } from "field-app-contract/contract";
 import { API, apiError, getJson } from "./api";
+import { authClient } from "./auth-client";
 
 // one page of a list: the page is part of the key, so each page has its own cache entry
 // with a q, the full-text search instead: the best matches first, a page at a time
@@ -54,17 +55,14 @@ export const entranceQuery = (id: string) =>
     queryKey: ["entrances", id],
   });
 
-// who is signed in, or null: here a 401 is an answer, not an error
+// who is signed in, or null: Better Auth's get-session answers null when nobody is
 export const meQuery = queryOptions({
   queryFn: async () => {
-    const res = await fetch(`${API}/api/auth/me`, { credentials: "include" });
-    if (res.status === 401) {
-      return null;
+    const { data, error } = await authClient.getSession();
+    if (error) {
+      throw new Error(`GET /api/auth/get-session: ${error.status}`);
     }
-    if (!res.ok) {
-      throw new Error(`GET /api/auth/me: ${res.status}`);
-    }
-    return (await res.json()) as User;
+    return data?.user ?? null;
   },
   queryKey: ["me"],
 });

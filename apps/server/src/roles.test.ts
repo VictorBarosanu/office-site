@@ -16,6 +16,8 @@ import {
 
 const ANDREIS_ROUTE = "f6f2d1fd-0221-48d5-8fb8-bc54c9100830"; // a fixture
 const MARIAS_ROUTE = "9e65acb1-4bf7-48c8-a3da-9dc14941cf38"; // a fixture
+// the contract's User, field for field: Better Auth's emailVerified and image stay in the table
+const USER_FIELDS = ["createdAt", "email", "id", "name", "role", "updatedAt"];
 let admin: ReturnType<typeof as>;
 let andrei: ReturnType<typeof as>;
 
@@ -37,6 +39,14 @@ test("a field worker reads the lists", async () => {
   expect((await andrei("/api/buildings")).status).toBe(200);
   expect((await andrei("/api/entrances")).status).toBe(200);
   expect((await andrei("/api/users?role=field")).status).toBe(200);
+});
+
+test("the users list answers the contract's fields, no more", async () => {
+  const listed = (await (await andrei("/api/users")).json()) as object[];
+  expect(listed.length).toBeGreaterThan(0);
+  for (const user of listed) {
+    expect(Object.keys(user).sort()).toEqual(USER_FIELDS);
+  }
 });
 
 test("a field worker's write is a 403", async () => {
@@ -95,7 +105,8 @@ test("only an admin adds a user, who can then sign in", async () => {
   expect((await andrei("/api/users", postJson(user))).status).toBe(403);
   const res = await admin("/api/users", postJson(user));
   expect(res.status).toBe(201);
-  expect(await res.json()).not.toHaveProperty("password");
+  // no password, and none of Better Auth's own columns either
+  expect(Object.keys((await res.json()) as object).sort()).toEqual(USER_FIELDS);
   expect((await signIn(user.email, user.password)).status).toBe(200);
   // the email is taken now
   expect((await admin("/api/users", postJson(user))).status).toBe(409);

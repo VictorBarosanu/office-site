@@ -2,7 +2,6 @@
 import { fieldErrors, SignIn } from "@office/shared";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import type { User } from "field-app-contract/contract";
 import { type FormEvent, useState } from "react";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -15,8 +14,8 @@ import {
 } from "@/components/ui/card";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { ApiError, postJson } from "../api";
-import { meQuery } from "../queries";
+import { ApiError } from "../api";
+import { authClient } from "../auth-client";
 
 export const Route = createFileRoute("/sign-in")({
   component: SignInPage,
@@ -41,13 +40,20 @@ function SignInPage() {
   const queryClient = useQueryClient();
   const [errors, setErrors] = useState<Errors>({});
   const signIn = useMutation({
-    mutationFn: (body: SignIn) => postJson<User>("/api/auth/sign-in", body),
+    // Better Auth's client answers { data, error } and never throws: throw its error here
+    mutationFn: async (body: SignIn) => {
+      const { error } = await authClient.signIn.email(body);
+      if (error) {
+        const message =
+          error.status === 401 ? "Wrong email or password" : error.message;
+        throw new ApiError(message ?? "Sign-in failed", {}, error.status);
+      }
+    },
     onError: (error) =>
       setErrors(error instanceof ApiError ? error.errors : {}),
-    onSuccess: async (user) => {
-      // a fresh cache for this user, who is "me" from now on
+    onSuccess: async () => {
+      // a fresh cache: the next page asks the server who "me" is now
       queryClient.clear();
-      queryClient.setQueryData(meQuery.queryKey, user);
       await navigate({ href: redirect ?? "/" });
     },
   });

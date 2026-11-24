@@ -7,7 +7,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { openAPIRouteHandler } from "hono-openapi";
-import { authApi } from "./auth";
+import { auth } from "./auth";
 import { buildingsApi } from "./buildings";
 import { team } from "./data";
 import { entrancesApi } from "./entrances";
@@ -162,7 +162,8 @@ app.get("/boom", () => {
   throw new Error("Boom: a test error");
 });
 
-app.route("/api/auth", authApi);
+// every /api/auth/* request is Better Auth's: sign-in/email, sign-out, get-session, …
+app.on(["GET", "POST"], "/api/auth/*", (c) => auth.handler(c.req.raw));
 app.route("/api/buildings", buildingsApi);
 app.route("/api/entrances", entrancesApi);
 app.route("/api/surveys", surveysApi);
@@ -176,7 +177,11 @@ app.get(
     documentation: {
       components: {
         securitySchemes: {
-          session: { in: "cookie", name: "session", type: "apiKey" },
+          session: {
+            in: "cookie",
+            name: "better-auth.session_token",
+            type: "apiKey",
+          },
         },
       },
       info: { title: "The office API", version: "1.0.0" },

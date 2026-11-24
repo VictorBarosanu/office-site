@@ -96,12 +96,15 @@ export const surveys = pgTable("surveys", {
   notes: text(),
 });
 
-// the contract's User: the office's admins and the field workers
+// the contract's User: the office's admins and the field workers; Better Auth's "user"
 export const users = pgTable("users", {
   ...row,
   role: text().$type<Role>().notNull(),
   name: text().notNull(),
   email: text().notNull().unique(),
+  // Better Auth's two: has the person shown they read this inbox, and a picture (GitHub's)
+  emailVerified: boolean().notNull().default(false),
+  image: text(),
 });
 
 // the contract's Route: an admin gives a field worker a day's entrances
@@ -130,8 +133,8 @@ export const routeStops = pgTable("route_stops", {
   status: text().$type<StopStatus>().notNull().default("todo"),
 });
 
-// Better Auth's account table, the names we'll keep: a password is a "credential"
-// account, its accountId the user's id
+// Better Auth's account table: a password is a "credential" account, its accountId the
+// user's id; a GitHub sign-in is a "github" account, its accountId GitHub's user id
 export const account = pgTable("account", {
   id: row.id,
   userId: text()
@@ -139,6 +142,13 @@ export const account = pgTable("account", {
     .references(() => users.id, { onDelete: "cascade" }),
   accountId: text().notNull(),
   providerId: text().notNull(),
+  // what GitHub gives back at sign-in (step 7); empty for a password
+  accessToken: text(),
+  refreshToken: text(),
+  idToken: text(),
+  accessTokenExpiresAt: instant(),
+  refreshTokenExpiresAt: instant(),
+  scope: text(),
   // the Bun.password hash (argon2id), never the password
   password: text(),
   createdAt: row.createdAt,
@@ -155,6 +165,16 @@ export const session = pgTable("session", {
   expiresAt: instant().notNull(),
   ipAddress: text(),
   userAgent: text(),
+  createdAt: row.createdAt,
+  updatedAt: row.updatedAt,
+});
+
+// Better Auth's one-time values: an email's verify link, a reset link, a sign-in's state
+export const verification = pgTable("verification", {
+  id: row.id,
+  identifier: text().notNull(),
+  value: text().notNull(),
+  expiresAt: instant().notNull(),
   createdAt: row.createdAt,
   updatedAt: row.updatedAt,
 });
